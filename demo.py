@@ -13,8 +13,8 @@ LED_ORDER = neopixel.GRB
 
 class COLOR:
 	BLACK = (0, 0, 0)
-	GREEN = (255, 0, 0)
-	RED = (0, 255, 0)
+	GREEN = (0, 255, 0)
+	RED = (255, 0, 0)
 	BLUE = (0, 0, 255)
 
 
@@ -178,4 +178,4 @@ def flash(second):
 
 
 if __name__ == '__main__':
-	flow(0, 200)
+	flow(0, 0.2)
