@@ -191,7 +191,7 @@ def scroll(line, second):
 				if lines[x] == line:
 					if (x + 2) < lines_len:
 						target_line = lines[x + 2]
-					else if x - 2 >= 0:
+					elif x - 2 >= 0:
 						target_line = lines[x - 2]
 
 		if target_line > -1:
