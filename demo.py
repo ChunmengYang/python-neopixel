@@ -50,7 +50,7 @@ POINT_LINES = {};
 line_index = 0;
 for line in LINES:
 	for point in line:
-		point_key = point + ''
+		point_key = str(point)
 		if not (point_key in POINT_LINES.keys()):
 			POINT_LINES[point_key] = [];
 		POINT_LINES[point_key].append(line_index);
@@ -61,7 +61,7 @@ LINE_SURFACES = {};
 surface_index = 0;
 for surface in SURFACES:
 	for line in surface:
-		line_key = line + ''
+		line_key = str(line)
 		if not (line_key in LINE_SURFACES.keys()):
 			LINE_SURFACES[line_key] = [];
 		LINE_SURFACES[line_key].append(surface_index);
