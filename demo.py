@@ -53,7 +53,7 @@ for line in LINES:
 	    if not POINT_LINES[point]:
 	    	POINT_LINES[point] = [];
 	    POINT_LINES[point].append(line_index);
-    line_index++;
+    line_index++
 
 
 LINE_SURFACES = {};
@@ -63,7 +63,7 @@ for surface in SURFACES:
 	    if not LINE_SURFACES[line]:
 	    	LINE_SURFACES[line] = [];
 	    LINE_SURFACES[line].append(surface_index);
-    surface_index++;
+    surface_index++
 
 
 
