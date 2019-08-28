@@ -159,6 +159,7 @@ def flow(start_point, second):
 		else:
 			start_point = LINES[line][0]
 
+
 def flash(second):
 	pre_index = -1
 
@@ -177,6 +178,34 @@ def flash(second):
 		pre_index = surface_index
 
 
+def scroll(line, second):
+	ignore_surface = [];
+
+	while True:
+		surface = randomSurface(line, ignore_surface)
+		target_line = -1
+		lines = SURFACES[surface]
+		if lines:
+			lines_len = len(lines)
+			for x in range(0, lines_len):
+				if lines[x] == line:
+					if (x + 2) < lines_len:
+						target_line = lines[x + 2]
+					else if x - 2 >= 0:
+						target_line = lines[x - 2]
+
+		if target_line > -1:
+			lightLine(target_line)
+		else:
+			return
+
+		time.sleep(second)
+		pixels.fill(COLOR.BLACK)
+		ignore_surface = [surface];
+		line = targetline;
+
+
 if __name__ == '__main__':
 	# flow(0, 0.2)
-	flash(1)
+	# flash(1)
+	scroll(8, 0.5)
