@@ -202,7 +202,7 @@ def scroll(line, second):
 		time.sleep(second)
 		pixels.fill(COLOR.BLACK)
 		ignore_surface = [surface];
-		line = targetline;
+		line = target_line;
 
 
 if __name__ == '__main__':
