@@ -10,12 +10,13 @@ LED_PIN = board.D18
 LED_COUNT = 165
 LED_BRIGHTNESS = 0.2
 LED_ORDER = neopixel.GRB
-COLOR = {
-	BLACK: (0, 0, 0),
-	GREEN: (255, 0, 0),
-	RED: (0, 255, 0),
-	BLUE: (0, 0, 255)
-}
+
+class COLOR:
+	BLACK = (0, 0, 0)
+	GREEN = (255, 0, 0)
+	RED = (0, 255, 0)
+	BLUE = (0, 0, 255)
+
 
 pixels = neopixel.NeoPixel(LED_PIN, LED_COUNT, brightness=LED_BRIGHTNESS, auto_write=False,
 pixel_order=LED_ORDER)
