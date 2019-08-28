@@ -50,20 +50,20 @@ POINT_LINES = [];
 line_index = 0;
 for line in LINES:
 	for point in line:
-	    if not POINT_LINES[point]:
-	    	POINT_LINES[point] = [];
-	    POINT_LINES[point].append(line_index);
-    line_index += 1;
+		if not POINT_LINES[point]:
+			POINT_LINES[point] = [];
+		POINT_LINES[point].append(line_index);
+	line_index += 1
 
 
 LINE_SURFACES = [];
 surface_index = 0;
 for surface in SURFACES:
-    for line in surface:
-	    if not LINE_SURFACES[line]:
-	    	LINE_SURFACES[line] = [];
-	    LINE_SURFACES[line].append(surface_index);
-    surface_index += 1;
+	for line in surface:
+		if not LINE_SURFACES[line]:
+			LINE_SURFACES[line] = [];
+		LINE_SURFACES[line].append(surface_index);
+	surface_index += 1
 
 
 
