@@ -1,9 +1,24 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
+import random
 import time
 import board
 import neopixel
+
+LED_PIN = board.D18
+LED_COUNT = 165
+LED_BRIGHTNESS = 0.2
+LED_ORDER = neopixel.GRB
+COLOR = {
+	BLACK: (0, 0, 0),
+	GREEN: (255, 0, 0),
+	RED: (0, 255, 0),
+	BLUE: (0, 0, 255)
+}
+
+pixels = neopixel.NeoPixel(LED_PIN, LED_COUNT, brightness=LED_BRIGHTNESS, auto_write=False,
+pixel_order=LED_ORDER)
 
 
 LINES_LED = [
@@ -19,7 +34,7 @@ LINES_LED = [
 	[55, 69],   #9
 	[151, 164], #10
 	[137, 150]  #11
-];
+]
 
 LINES = [
 	[0, 1], #0
@@ -34,7 +49,7 @@ LINES = [
 	[0, 5], #9
 	[6, 1], #10
 	[2, 7]  #11
-];
+]
 
 SURFACES = [
 	[0, 1, 2, 3], 	#0
@@ -43,7 +58,7 @@ SURFACES = [
 	[0, 9, 6, 10], 	#3
 	[1, 10, 7, 11], #4
 	[3, 4, 5, 9]  	#5
-];
+]
 
 
 POINT_LINES = {};
@@ -77,21 +92,89 @@ def contain(items, item):
 	return 0
 
 
-LED_PIN = board.D18
-LED_COUNT = 165
-LED_BRIGHTNESS = 0.2
-LED_ORDER = neopixel.GRB
+def lightLine(line):
+	start_point = LINES_LED[line][0]
+	end_point = LINES_LED[line][1]
 
-pixels = neopixel.NeoPixel(LED_PIN, LED_COUNT, brightness=LED_BRIGHTNESS, auto_write=False,
-pixel_order=LED_ORDER)
+	if start_point > end_point:
+		current_point = start_point
+		while current_point >= end_point:
+			pixels[current_point - 1] = COLOR.RED;
+			current_point -= 1
+	else:
+		current_point = start_point
+		while current_point <= end_point:
+			pixels[current_point - 1] = COLOR.RED;
+			current_point += 1
+	
+	pixels.show()
 
-while True:
-	pixels.fill((255, 0, 0))
-	pixels.show()
-	time.sleep(1)
-	pixels.fill((0, 255, 0))
-	pixels.show()
-	time.sleep(1)
-	pixels.fill((0, 0, 255))
-	pixels.show()
-	time.sleep(1)
+def randomLine(point, ignore_line):
+	lines = []
+
+	lines_all = POINT_LINES[str(point)]
+	if lines_all:
+		for line in lines_all:
+			if contain(ignore_line, line) == 0:
+				lines.append(line);
+
+	if len(lines) > 0:
+		line_index = random.randint(0, len(lines) - 1)
+		return lines[line_index]
+
+	return -1
+
+def randomSurface(line, ignore_surface):
+	surfaces = []
+
+	surfaces_all = LINE_SURFACES[str(line)]
+	if surfaces_all:
+		for surface in surfaces_all:
+			if contain(ignore_surface, surface) == 0:
+				surfaces.append(surface);
+
+	if len(surfaces) > 0:
+		surface_index = random.randint(0, len(surfaces) - 1)
+		return surfaces[surface_index]
+
+	return -1
+
+def flow(start_point, second):
+	ignore_line = [];
+
+	while True:
+		line = randomLine(start_point, ignore_line)
+		if line == -1:
+			return
+
+		lightLine(line)
+		time.sleep(second)
+
+		pixels.fill(COLOR.BLACK)
+		ignore_line = [line];
+
+		if LINES[line][0] == start_point:
+			start_point = LINES[line][1]
+		else:
+			start_point = LINES[line][0]
+
+def flash(second):
+	pre_index = -1
+
+	while True:
+		surface_index = random.randint(0, len(SURFACES) - 1)
+		if surface_index == pre_index:
+			continue
+
+		lines = SURFACES[surface_index]
+		if lines:
+			for line in lines:
+				lightLine(line)
+
+		time.sleep(second)
+		pixels.fill(COLOR.BLACK)
+		pre_index = surface_index
+
+
+if __name__ == '__main__':
+	flow(0, 200)
