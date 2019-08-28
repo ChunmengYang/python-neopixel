@@ -178,4 +178,5 @@ def flash(second):
 
 
 if __name__ == '__main__':
-	flow(0, 0.2)
+	# flow(0, 0.2)
+	flash(1)
