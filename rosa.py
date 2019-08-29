@@ -93,6 +93,7 @@ for beat_time in beat_times:
 	sleep(beat_time - pre_beat_time)
 
 	pixels.fill(getColor(12, beat_chroma_max_index[index]))
+	pixels.show()
 	# sts = "";
 	# for st in beat_chroma[index]:
 	# 	sts += '%f ,' %st 
