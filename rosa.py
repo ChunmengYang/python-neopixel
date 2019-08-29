@@ -86,7 +86,7 @@ for beat in beats:
 	beat_chroma_max_index.append(max_chroma_index)
 
 
-playThread.start()
+# playThread.start()
 pre_beat_time = 0
 index = 0
 for beat_time in beat_times:
