@@ -37,7 +37,7 @@ pixel_order=LED_ORDER)
 
 
 
-offset = 0
+offset = 10
 # 节拍时间点
 beat_times = []
 # 节拍点的八音12度最强度的索引
