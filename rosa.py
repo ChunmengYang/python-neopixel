@@ -11,7 +11,7 @@ import neopixel
 
 # def playmp3():
 # 	mixer.init()
-# 	mixer.music.load('./demo.mp3')
+# 	mixer.music.load('./demo.wav')
 # 	mixer.music.play()
 
 # playThread = threading.Thread(target=playmp3)
@@ -46,7 +46,7 @@ beat_chroma_max_index = []
 def setupBeatChroma():
 	global beat_times
 	global beat_chroma_max_index
-	y, sr = librosa.load("./demo.mp3", offset=offset, duration=10.0)
+	y, sr = librosa.load("./demo.wav", offset=offset, duration=10.0)
 	
 	# # 八音12度的强度
 	# chroma_stft = librosa.feature.chroma_stft(y=y, sr=sr)
