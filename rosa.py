@@ -6,25 +6,25 @@ import numpy as np
 from time import sleep
 import threading
 from pygame import mixer 
-# import board
-# import neopixel
+import board
+import neopixel
 
-# LED_PIN = board.D18
-# LED_COUNT = 165
-# LED_BRIGHTNESS = 0.2
-# LED_ORDER = neopixel.GRB
+LED_PIN = board.D18
+LED_COUNT = 165
+LED_BRIGHTNESS = 0.2
+LED_ORDER = neopixel.GRB
 
-# class COLOR:
-# 	BLACK = (0, 0, 0)
-# 	GREEN = (0, 255, 0)
-# 	RED = (255, 0, 0)
-# 	BLUE = (0, 0, 255)
+class COLOR:
+	BLACK = (0, 0, 0)
+	GREEN = (0, 255, 0)
+	RED = (255, 0, 0)
+	BLUE = (0, 0, 255)
 
-# def getColor(max, num):
-# 	return (255*num/max, 0, 0)
+def getColor(max, num):
+	return (255 * num / max, 0, 0)
 
-# pixels = neopixel.NeoPixel(LED_PIN, LED_COUNT, brightness=LED_BRIGHTNESS, auto_write=False,
-# pixel_order=LED_ORDER)
+pixels = neopixel.NeoPixel(LED_PIN, LED_COUNT, brightness=LED_BRIGHTNESS, auto_write=False,
+pixel_order=LED_ORDER)
 
 def playmp3():
 	mixer.init()
@@ -70,10 +70,10 @@ pre_beat_time = 0
 index = 0
 for beat_time in beat_times:
 	sleep(beat_time - pre_beat_time)
-	print(beat_time)
+
 	# print(beat_chroma_max_index[index])
-	# pixels.fill(COLOR.RED)
-	# pixels.show()
+	pixels.fill(COLOR.RED)
+	pixels.show()
 
 	pre_beat_time = beat_time
 	index += 1
