@@ -33,7 +33,7 @@ def playmp3():
 
 playThread = threading.Thread(target=playmp3)
 
-
+offset = 0
 # 节拍时间点
 beat_times = []
 # 节拍点的八音12度最强度的索引
@@ -42,7 +42,7 @@ beat_chroma_max_index = []
 def setupBeatChroma():
 	global beat_times
 	global beat_chroma_max_index
-	y, sr = librosa.load("./demo.mp3", sr=None)
+	y, sr = librosa.load("./demo.mp3", offset=offset, duration=5.0)
 	
 	# # 八音12度的强度
 	# chroma_stft = librosa.feature.chroma_stft(y=y, sr=sr)
@@ -70,7 +70,7 @@ pre_beat_time = 0
 index = 0
 for beat_time in beat_times:
 	sleep(beat_time - pre_beat_time)
-	print(1)
+	print(beat_time)
 	# print(beat_chroma_max_index[index])
 	# pixels.fill(COLOR.RED)
 	# pixels.show()
