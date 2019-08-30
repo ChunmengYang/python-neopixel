@@ -6,15 +6,15 @@ import numpy as np
 from time import sleep
 import threading
 from pygame import mixer 
-# import board
-# import neopixel
+import board
+import neopixel
 
-# def playmp3():
-# 	mixer.init()
-# 	mixer.music.load('./demo.wav')
-# 	mixer.music.play()
+def playmp3():
+	mixer.init()
+	mixer.music.load('./demo.wav')
+	mixer.music.play()
 
-# playThread = threading.Thread(target=playmp3)
+playThread = threading.Thread(target=playmp3)
 
 
 LED_PIN = board.D21
@@ -64,7 +64,7 @@ def getBeatTimes():
 		if total_duration < duration:
 			duration += total_duration
 			total_duration = 0
-		
+
 		beat_times = getSubBeatTimes(filepath, offset, duration)
 		
 		if beat_times.size > 0:
@@ -83,7 +83,6 @@ for beat_time in beat_times_all:
 	pixels.show()
 	sleep(beat_time - pre_beat_time)
 
-	# print(beat_time)
 	pixels.fill(COLOR.RED)
 	pixels.show()
 
