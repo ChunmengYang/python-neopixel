@@ -9,13 +9,12 @@ from pygame import mixer
 import board
 import neopixel
 
-# def playmp3():
-# 	mixer.init()
-# 	mixer.music.load('./demo.wav')
-# 	mixer.music.play()
+def playmp3():
+	mixer.init()
+	mixer.music.load('./demo.wav')
+	mixer.music.play()
 
-# playThread = threading.Thread(target=playmp3)
-# playThread.start()
+playThread = threading.Thread(target=playmp3)
 
 
 LED_PIN = board.D21
@@ -69,7 +68,7 @@ def setupBeatChroma():
 
 
 setupBeatChroma()
-
+playThread.start()
 pre_beat_time = 0
 index = 0
 for beat_time in beat_times:
