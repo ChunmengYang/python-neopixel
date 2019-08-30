@@ -6,33 +6,33 @@ import numpy as np
 from time import sleep
 import threading
 from pygame import mixer 
-# import board
-# import neopixel
+import board
+import neopixel
 
-# def playmp3():
-# 	mixer.init()
-# 	mixer.music.load('./demo.wav')
-# 	mixer.music.play()
+def playmp3():
+	mixer.init()
+	mixer.music.load('./demo.wav')
+	mixer.music.play()
 
-# playThread = threading.Thread(target=playmp3)
+playThread = threading.Thread(target=playmp3)
 
 
-# LED_PIN = board.D21
-# LED_COUNT = 165
-# LED_BRIGHTNESS = 0.2
-# LED_ORDER = neopixel.GRB
+LED_PIN = board.D21
+LED_COUNT = 165
+LED_BRIGHTNESS = 0.2
+LED_ORDER = neopixel.GRB
 
-# class COLOR:
-# 	BLACK = (0, 0, 0)
-# 	GREEN = (0, 255, 0)
-# 	RED = (255, 0, 0)
-# 	BLUE = (0, 0, 255)
+class COLOR:
+	BLACK = (0, 0, 0)
+	GREEN = (0, 255, 0)
+	RED = (255, 0, 0)
+	BLUE = (0, 0, 255)
 
-# def getColor(max, num):
-# 	return (255 * num / max, 0, 0)
+def getColor(max, num):
+	return (255 * num / max, 0, 0)
 
-# pixels = neopixel.NeoPixel(LED_PIN, LED_COUNT, brightness=LED_BRIGHTNESS, auto_write=False,
-# pixel_order=LED_ORDER)
+pixels = neopixel.NeoPixel(LED_PIN, LED_COUNT, brightness=LED_BRIGHTNESS, auto_write=False,
+pixel_order=LED_ORDER)
 
 def getDuration(filepath):
 	y, sr = librosa.load(filepath, sr=None)
@@ -60,6 +60,11 @@ def getBeatTimes():
 	duration = 5.0
 
 	while total_duration > 0:
+		total_duration -= duration
+		if total_duration < duration:
+			duration += total_duration
+			total_duration = 0
+		
 		beat_times = getSubBeatTimes(filepath, offset, duration)
 		
 		if beat_times.size > 0:
@@ -67,11 +72,6 @@ def getBeatTimes():
 				beat_times_all.append(beat_time + offset)
 
 		offset += duration
-
-		total_duration -= duration
-		if total_duration < duration *2:
-			duration = total_duration
-			total_duration = 0
 
 
 getBeatTimes()
