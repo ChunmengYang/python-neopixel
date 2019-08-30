@@ -9,6 +9,15 @@ from pygame import mixer
 import board
 import neopixel
 
+# def playmp3():
+# 	mixer.init()
+# 	mixer.music.load('./demo.mp3')
+# 	mixer.music.play()
+
+# playThread = threading.Thread(target=playmp3)
+# playThread.start()
+
+
 LED_PIN = board.D18
 LED_COUNT = 165
 LED_BRIGHTNESS = 0.2
@@ -26,12 +35,7 @@ def getColor(max, num):
 pixels = neopixel.NeoPixel(LED_PIN, LED_COUNT, brightness=LED_BRIGHTNESS, auto_write=False,
 pixel_order=LED_ORDER)
 
-def playmp3():
-	mixer.init()
-	mixer.music.load('./demo.mp3')
-	mixer.music.play()
 
-# playThread = threading.Thread(target=playmp3)
 
 offset = 0
 # 节拍时间点
@@ -65,14 +69,15 @@ def setupBeatChroma():
 
 
 setupBeatChroma()
-# playThread.start()
+
 pre_beat_time = 0
 index = 0
 for beat_time in beat_times:
+	pixels.fill(COLOR.BLACK)
+	pixels.show()
 	sleep(beat_time - pre_beat_time)
 
 	print(beat_time)
-	# print(beat_chroma_max_index[index])
 	pixels.fill(COLOR.RED)
 	pixels.show()
 
