@@ -18,7 +18,7 @@ import neopixel
 # playThread.start()
 
 
-LED_PIN = board.D18
+LED_PIN = board.D21
 LED_COUNT = 165
 LED_BRIGHTNESS = 0.2
 LED_ORDER = neopixel.GRB
