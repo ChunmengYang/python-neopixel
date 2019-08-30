@@ -31,7 +31,7 @@ def playmp3():
 	mixer.music.load('./demo.mp3')
 	mixer.music.play()
 
-playThread = threading.Thread(target=playmp3)
+# playThread = threading.Thread(target=playmp3)
 
 offset = 0
 # 节拍时间点
@@ -65,7 +65,7 @@ def setupBeatChroma():
 
 
 setupBeatChroma()
-playThread.start()
+# playThread.start()
 pre_beat_time = 0
 index = 0
 for beat_time in beat_times:
