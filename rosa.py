@@ -28,7 +28,7 @@ from pygame import mixer
 
 def playmp3():
 	mixer.init()
-	mixer.music.load('./demo.wav')
+	mixer.music.load('./demo.mp3')
 	mixer.music.play()
 
 playThread = threading.Thread(target=playmp3)
@@ -42,7 +42,7 @@ beat_chroma_max_index = []
 def setupBeatChroma():
 	global beat_times
 	global beat_chroma_max_index
-	y, sr = librosa.load("./demo.wav", sr=None)
+	y, sr = librosa.load("./demo.mp3", sr=None)
 	
 	# 八音12度的强度
 	chroma_stft = librosa.feature.chroma_stft(y=y, sr=sr)

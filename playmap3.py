@@ -7,7 +7,7 @@ from time import sleep
 
 def playmp3():
 	mixer.init()
-	mixer.music.load('./demo.wav')
+	mixer.music.load('./demo.mp3')
 	mixer.music.play()
 
 playThread = threading.Thread(target=playmp3)
