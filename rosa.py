@@ -71,6 +71,7 @@ index = 0
 for beat_time in beat_times:
 	sleep(beat_time - pre_beat_time)
 
+	print(beat_time)
 	# print(beat_chroma_max_index[index])
 	pixels.fill(COLOR.RED)
 	pixels.show()
