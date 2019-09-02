@@ -44,7 +44,7 @@ def playmusic(musicfile, jsonfile):
 		
 		pre_beat_time = 0
 		index = 0
-		mixer.music.play()ß
+		mixer.music.play()
 		for beat_time in beat_times:
 			pixels.fill(COLOR.BLACK)
 			pixels.show()
