@@ -51,8 +51,11 @@ def playmusic(musicfile, jsonfile):
 			sleep(beat_time - pre_beat_time)
 
 			if beat_pitches[index] > 700:
+				sleep(beat_time - pre_beat_time - 0.04)
 				pixels.fill(COLOR.RED)
 				pixels.show()
+			else:
+				sleep(beat_time - pre_beat_time)
 
 			pre_beat_time = beat_time
 			index += 1
