@@ -93,7 +93,7 @@ def contain(items, item):
 	return 0
 
 
-def lightLine(line):
+def light_line(line):
 	start_point = LINES_LED[line][0]
 	end_point = LINES_LED[line][1]
 
@@ -110,7 +110,7 @@ def lightLine(line):
 	
 	pixels.show()
 
-def randomLine(point, ignore_line):
+def randomline(point, ignore_line):
 	lines = []
 
 	lines_all = POINT_LINES[str(point)]
@@ -125,7 +125,7 @@ def randomLine(point, ignore_line):
 
 	return -1
 
-def randomSurface(line, ignore_surface):
+def randomsurface(line, ignore_surface):
 	surfaces = []
 
 	surfaces_all = LINE_SURFACES[str(line)]
@@ -144,11 +144,11 @@ def flow(start_point, second):
 	ignore_line = [];
 
 	while True:
-		line = randomLine(start_point, ignore_line)
+		line = randomline(start_point, ignore_line)
 		if line == -1:
 			return
 
-		lightLine(line)
+		light_line(line)
 		time.sleep(second)
 
 		pixels.fill(COLOR.BLACK)
@@ -171,7 +171,7 @@ def flash(second):
 		lines = SURFACES[surface_index]
 		if lines:
 			for line in lines:
-				lightLine(line)
+				light_line(line)
 
 		time.sleep(second)
 		pixels.fill(COLOR.BLACK)
@@ -182,7 +182,7 @@ def scroll(line, second):
 	ignore_surface = [];
 
 	while True:
-		surface = randomSurface(line, ignore_surface)
+		surface = randomsurface(line, ignore_surface)
 		target_line = -1
 		lines = SURFACES[surface]
 		if lines:
@@ -195,7 +195,7 @@ def scroll(line, second):
 						target_line = lines[x - 2]
 
 		if target_line > -1:
-			lightLine(target_line)
+			light_line(target_line)
 		else:
 			return
 
