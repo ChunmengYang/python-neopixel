@@ -61,6 +61,10 @@ SURFACES = [
 	[3, 4, 5, 9]  	#5
 ]
 
+POLYHEDRONS = [
+	[0, 1, 2, 3, 4, 5] #0
+]
+
 
 POINT_LINES = {};
 line_index = 0;
