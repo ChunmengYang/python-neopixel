@@ -2,7 +2,6 @@
 # -*- coding: UTF-8 -*-
 
 from pygame import mixer 
-import threading
 from time import sleep
 import os
 import json
