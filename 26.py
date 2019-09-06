@@ -316,6 +316,17 @@ def random_surface_20(line, ignore_surface):
 	surfaces_all = LINE_SURFACES_20[str(line)]
 	return random_surface(surfaces_all, line, ignore_surface)
 
+
+def fill_26(color):
+	for x in range(0, len(pixels_26)):
+		pixels_26[x].fill(color)
+		pixels_26[x].show()
+
+def fill_20(color):
+	for x in range(0, len(pixels_20)):
+		pixels_20[x].fill(color)
+		pixels_20[x].show()
+
 # 从一条边向另一条相邻的边流动点亮
 def flow_26(start_point, flow_line_number, interval):
 	ignore_line = [];
@@ -335,6 +346,8 @@ def flow_26(start_point, flow_line_number, interval):
 		else:
 			line_led = LINES_LED_26[line]
 			pixels = pixels_26[pre_line_led['c']]
+			start_led = -1
+			end_led = -1
 			if LINES_26[line][0] == start_point:
 				start_led = line_led['n'][0]
 				end_led = line_led['n'][1]
@@ -342,14 +355,13 @@ def flow_26(start_point, flow_line_number, interval):
 				start_led = line_led['n'][1]
 				end_led = line_led['n'][0]
 
-
 			pre_led_count = abs(pre_start_led - pre_end_led) + 1
 			led_count = abs(start_led - end_led) + 1
 			for x in range(0, pre_led_count):
 				if pre_start_led > pre_end_led:
-					pre_pixels[pre_start_led - x] = COLOR.BLACK;
+					pre_pixels[pre_start_led - x] = COLOR.GREEN;
 				else:
-					pre_pixels[pre_start_led + x] = COLOR.BLACK;
+					pre_pixels[pre_start_led + x] = COLOR.GREEN;
 				pre_pixels.show()
 
 				if x < led_count:
@@ -378,9 +390,79 @@ def flow_26(start_point, flow_line_number, interval):
 		pre_led_count = abs(pre_start_led - pre_end_led) + 1
 		for x in range(0, pre_led_count):
 			if pre_start_led > pre_end_led:
-				pre_pixels[pre_start_led - x] = COLOR.BLACK;
+				pre_pixels[pre_start_led - x] = COLOR.GREEN;
 			else:
-				pre_pixels[pre_start_led + x] = COLOR.BLACK;
+				pre_pixels[pre_start_led + x] = COLOR.GREEN;
+			pre_pixels.show()
+
+			time.sleep(interval)
+
+# 从一条边向另一条相邻的边流动点亮
+def flow_20(start_point, flow_line_number, interval):
+	ignore_line = [];
+	pre_line = -1
+	pre_pixels = None
+	pre_start_led = -1
+	pre_end_led = -1
+
+	index = 0
+	while index < flow_line_number:
+		line = random_line_20(start_point, ignore_line)
+		if line == -1:
+			return
+
+		if pre_line == -1:
+			light_line_20(line, COLOR.RED)
+		else:
+			line_led = LINES_LED_20[line]
+			pixels = pixels_20[pre_line_led['c']]
+			start_led = -1
+			end_led = -1
+			if LINES_20[line][0] == start_point:
+				start_led = line_led['n'][0]
+				end_led = line_led['n'][1]
+			else:
+				start_led = line_led['n'][1]
+				end_led = line_led['n'][0]
+
+			pre_led_count = abs(pre_start_led - pre_end_led) + 1
+			led_count = abs(start_led - end_led) + 1
+			for x in range(0, pre_led_count):
+				if pre_start_led > pre_end_led:
+					pre_pixels[pre_start_led - x] = COLOR.GREEN;
+				else:
+					pre_pixels[pre_start_led + x] = COLOR.GREEN;
+				pre_pixels.show()
+
+				if x < led_count:
+					if start_led > end_led:
+						pixels[start_led - x] = COLOR.RED;
+					else:
+						pixels[start_led + x] = COLOR.RED;
+					pixels.show()
+
+				time.sleep(interval)
+
+			pre_line = line
+			pre_pixels = pixels
+			pre_start_led = start_led
+			pre_end_led = end_led
+		
+		ignore_line = [line];
+		if LINES_20[line][0] == start_point:
+			start_point = LINES_20[line][1]
+		else:
+			start_point = LINES_20[line][0]
+
+		index += 1
+
+	if pre_line > -1:
+		pre_led_count = abs(pre_start_led - pre_end_led) + 1
+		for x in range(0, pre_led_count):
+			if pre_start_led > pre_end_led:
+				pre_pixels[pre_start_led - x] = COLOR.GREEN;
+			else:
+				pre_pixels[pre_start_led + x] = COLOR.GREEN;
 			pre_pixels.show()
 
 			time.sleep(interval)
@@ -391,7 +473,7 @@ def flash_surface_26(flash_number, interval):
 	pre_index = -1
 	index = 0
 	while index < flash_number:
-		surface_index = random.randint(0, len(SURFACES) - 1)
+		surface_index = random.randint(0, len(SURFACES_26) - 1)
 		if surface_index == pre_index:
 			continue
 
@@ -403,17 +485,38 @@ def flash_surface_26(flash_number, interval):
 		time.sleep(interval)
 		if lines:
 			for line in lines:
-				light_line_26(line, COLOR.BLACK)
+				light_line_26(line, COLOR.GREEN)
 		pre_index = surface_index
 
 		index += 1
 
+# 随机点亮某个面
+def flash_surface_20(flash_number, interval):
+	pre_index = -1
+	index = 0
+	while index < flash_number:
+		surface_index = random.randint(0, len(SURFACES_20) - 1)
+		if surface_index == pre_index:
+			continue
+
+		lines = SURFACES_20[surface_index]
+		if lines:
+			for line in lines:
+				light_line_20(line, COLOR.GREEN)
+
+		time.sleep(interval)
+		if lines:
+			for line in lines:
+				light_line_20(line, COLOR.RED)
+		pre_index = surface_index
+
+		index += 1
 
 # 平行线滚动(只限于正方形的面)
 def parallel_line_scroll_26(start_line, scroll_number, interval):
 	light_line_26(start_line, COLOR.RED)
 	time.sleep(interval)
-	light_line_26(start_line, COLOR.BLACK)
+	light_line_26(start_line, COLOR.GREEN)
 
 	ignore_surface = [];
 	index = 0
@@ -436,28 +539,104 @@ def parallel_line_scroll_26(start_line, scroll_number, interval):
 			return
 
 		time.sleep(interval)
-		light_line_26(target_line, COLOR.BLACK)
+		light_line_26(target_line, COLOR.GREEN)
 
 		ignore_surface = [surface];
 		start_line = target_line;
 
 		index += 1
 
+# 随机选取一点，逐个点亮点所在线的所有灯点
+def flow_lines_by_point_20(flash_number, interval):
+	pre_point_index = -1
+	index = 0
+	while index < flash_number:
+		point_index = random.randint(0, 12)
+		if point_index == pre_point_index:
+			continue
+
+		lines = POINT_LINES_20[str(point_index)]
+		if lines:
+			# 获取几条边的灯带控制器、起始点的灯点索引、边的灯点数
+			pixels_list = []
+			start_led_list = []
+			end_led_list = []
+			led_count_list = []
+			max_led_count = 0
+			for line in lines:
+				line_led = LINES_LED_20[line]
+				pixels = pixels_20[line_led['c']]
+				start_led = -1
+				end_led = -1
+				if LINES_20[line][0] == point_index:
+					start_led = line_led['n'][0]
+					end_led = line_led['n'][1]
+				else:
+					start_led = line_led['n'][1]
+					end_led = line_led['n'][0]
+
+				pixels_list.append(pixels)
+				start_led_list.append(start_led)
+				end_led_list.append(end_led)
+
+				led_count = abs(start_led - end_led) + 1
+				led_count_list.append(led_count)
+				if led_count > max_led_count:
+					max_led_count = led_count
+
+			# 几条边同时逐个点亮边上的灯点，
+			for x in range(0, max_led_count):
+				for y in range(0, len(pixels_list)):
+					pixels = pixels_list[y]
+					start_led = start_led_list[y]
+					end_led = end_led_list[y]
+					led_count = led_count_list[y]
+					
+					if x < led_count:
+						if start_led > end_led:
+							pixels[start_led - x] = COLOR.RED;
+						else:
+							pixels[start_led + x] = COLOR.RED;
+						pixels.show()
+
+				time.sleep(interval)
+
+			# 熄灭所有边的灯点
+			for line in lines:
+				light_line_20(line, COLOR.BLACK)
+
+
+		pre_point_index = point_index
+
+		index += 1
+
+
+# 双随机面闪烁
+def double_flash_surface():
+	fill_26(COLOR.GREEN)
+	fill_20(COLOR.RED)
+	threading.Thread(target=flash_surface_26,args=(20, 0.5)).start()
+	threading.Thread(target=flash_surface_20,args=(20, 0.5)).start()
+
 
 # 双流动点亮
-def double_flow_26():
+def double_flow():
+	fill_26(COLOR.GREEN)
+	fill_20(COLOR.GREEN)
 	threading.Thread(target=flow_26,args=(0, 40, 0.2)).start()
-	threading.Thread(target=flow_26,args=(20, 40, 0.2)).start()
+	threading.Thread(target=flow_20,args=(0, 40, 0.2)).start()
 
 
 # 双平行滚动
-def double_scroll_26():
+def double_scroll():
+	fill_26(COLOR.GREEN)
+	fill_20(COLOR.RED)
 	threading.Thread(target=parallel_line_scroll_26,args=(0, 40, 0.2)).start()
-	threading.Thread(target=parallel_line_scroll_26,args=(20, 40, 0.2)).start()
-
+	threading.Thread(target=parallel_line_scroll_26,args=(1, 40, 0.2)).start()
 
 
 if __name__ == '__main__':
-	# flow_26(0, 0.2)
-	# flash_surface_26(1)
-	scroll_26(8, 0.5)
+	while True:
+		flash_surface_26(20, 0.5)
+		double_flow_26()
+		double_scroll_26()
