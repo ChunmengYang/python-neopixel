@@ -546,12 +546,12 @@ def parallel_line_scroll_26(start_line, scroll_number, interval):
 
 		index += 1
 
-# 随机选取一点，逐个点亮点所在线的所有灯点
-def flow_lines_by_point_20(flash_number, interval):
+# 逐个点亮点所在线的所有灯点，再熄灭, 0-11每个点都执行一次效果，最后全部灯都点亮。
+def flow_lines_by_point_20(interval):
 	pre_point_index = -1
-	index = 0
-	while index < flash_number:
-		point_index = random.randint(0, 12)
+
+	for x in range(0, 12):
+		point_index = x
 		if point_index == pre_point_index:
 			continue
 
@@ -605,10 +605,9 @@ def flow_lines_by_point_20(flash_number, interval):
 			for line in lines:
 				light_line_20(line, COLOR.BLACK)
 
-
 		pre_point_index = point_index
 
-		index += 1
+	fill_20(COLOR.RED)
 
 
 # 双随机面闪烁
@@ -637,6 +636,7 @@ def double_scroll():
 
 if __name__ == '__main__':
 	while True:
-		flash_surface_26(20, 0.5)
-		double_flow_26()
-		double_scroll_26()
+		flow_lines_by_point_20(0.2)
+		double_flash_surface()
+		double_flow()
+		double_scroll()
