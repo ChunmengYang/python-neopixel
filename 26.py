@@ -674,6 +674,7 @@ def flow_lines_by_point_20(interval):
 			for key, line in lines_dict.items():
 				light_line_20(line, COLOR.RED)
 
+			time.sleep(interval * )
 		pre_point_index = point_index
 
 	fill_20(COLOR.RED)
@@ -730,6 +731,138 @@ def light_layer_to_layer_26(layer_number, interval):
 			points_dict = pre_points_dict
 			pre_points_dict = temp
 			temp = None
+
+		time.sleep(interval)
+		index += 1
+
+# 查询一条边所在的面
+def get_surface_by_line_26(line, ignore_surface):
+	surfaces = LINE_SURFACES_26[str(line)]
+	if surfaces:
+		for surface in surfaces:
+			if surface == ignore_surface:
+				continue
+			return surface
+	return -1
+
+# 查询一条边在一个正方形中的对面边和对面边所在正方形
+def get_surface_by_opposite_line_26(line, surface):
+	target_line = -1
+	target_surface = -1
+	lines = SURFACES_26[surface]
+	if lines:
+		lines_len = len(lines)
+		for x in range(0, lines_len):
+			if lines[x] == line:
+				if (x + 2) < lines_len:
+					target_line = lines[x + 2]
+				elif x - 2 >= 0:
+					target_line = lines[x - 2]
+
+	if target_line >= 0:
+		target_surface = get_surface_by_line_26(target_line, surface)
+
+	return target_line, target_surface
+
+# 查询一条边在一个面中相邻的两边所在的面
+def get_surface_by_neighbouring_line_26(line, surface):
+	target_line = -1
+	target_surface = -1
+	target_other_line = -1
+	target_other_surface = -1
+
+	lines = SURFACES_26[surface]
+	if lines:
+		lines_len = len(lines)
+		for x in range(0, lines_len):
+			if lines[x] == line:
+				if (x + 1) > lines_len:
+					target_line = lines[0]
+					target_other_line = lines[x - 1]
+				elif x - 1 < 0:
+					target_line = lines[x + 1]
+					target_other_line = lines[lines_len - 1]
+				else:
+					target_line = lines[x + 1]
+					target_other_line = lines[x - 1]
+
+	if target_line >= 0:
+		target_surface = get_surface_by_line_26(target_line, surface)
+	if target_other_line >= 0:
+		target_other_surface = get_surface_by_line_26(target_other_line, surface)
+
+	return target_surface, target_other_surface
+
+# 正二六面体中一个正方形与其相邻的两个三角形一起点亮，然后熄灭随后下一组点亮
+def flash_triangle_square_triangle_26(flash_number, interval):
+	start_line = 13
+	start_surface = 1
+
+	index = 0
+	while index < flash_number:
+		if start_line < 0 or start_surface < 0:
+			return
+
+		target_surface, target_other_surface = get_surface_by_neighbouring_line_26(start_line, start_surface)
+
+		if target_surface >= 0:
+			lines = SURFACES_26[target_surface]
+			if lines:
+				for line in lines:
+					light_line_26(line, COLOR.RED)
+
+		lines = SURFACES_26[start_surface]
+		if lines:
+			for line in lines:
+				light_line_26(line, COLOR.RED)
+		
+		if target_other_surface >= 0:
+			lines = SURFACES_26[target_other_surface]
+			if lines:
+				for line in lines:
+					light_line_26(line, COLOR.RED)
+
+		time.sleep(interval)
+
+		if target_surface >= 0:
+			lines = SURFACES_26[target_surface]
+			if lines:
+				for line in lines:
+					light_line_26(line, COLOR.RED)
+
+		lines = SURFACES_26[start_surface]
+		if lines:
+			for line in lines:
+				light_line_26(line, COLOR.RED)
+		
+		if target_other_surface >= 0:
+			lines = SURFACES_26[target_other_surface]
+			if lines:
+				for line in lines:
+					light_line_26(line, COLOR.RED)
+
+		opposite_line, opposite_surface = get_surface_by_opposite_line_26(start_line, start_surface)
+		if opposite_line >= 0 and opposite_surface >= 0:
+			start_line, start_surface = get_surface_by_opposite_line_26(opposite_line, opposite_surface)
+
+		
+		index += 1
+
+
+# 两个模型交替亮起
+def double_flash_body(flash_number, interval):
+	index = 0
+	while index < flash_number:
+		if index > 0:
+			if index % 2 == 1:
+				fill_26(COLOR.BLACK)
+				fill_20(COLOR.RED)
+			else:
+				fill_26(COLOR.RED)
+				fill_20(COLOR.BLACK)
+		else:
+			fill_26(COLOR.RED)
+			fill_20(COLOR.BLACK)
 
 		time.sleep(interval)
 		index += 1
