@@ -30,7 +30,9 @@ class COLOR:
 	GREEN = (0, 255, 0)
 	RED = (255, 0, 0)
 	BLUE = (0, 0, 255)
-
+	YELLOW = (255, 255, 0)
+	PURPLE = (255, 0, 255)
+	TURQUOISE = (0, 255, 255)
 
 LINES_LED_26 = [
 	{c: 0, n: [1, 14]} 	#0
@@ -595,10 +597,10 @@ def get_layer_lines_20(points_dict):
 		if lines:
 			for line in lines:
 				another_point = -1
-				if LINES_26[line][0] == point:
-					another_point = LINES_26[line][1]
-				if LINES_26[line][1] == point:
-					another_point = LINES_26[line][0]
+				if LINES_20[line][0] == point:
+					another_point = LINES_20[line][1]
+				if LINES_20[line][1] == point:
+					another_point = LINES_20[line][0]
 
 				if str(another_point) in points_dict:
 					lines_dict[str(line)] = line;
@@ -629,13 +631,16 @@ def flow_lines_by_point_20(interval):
 				pixels = pixels_20[line_led['c']]
 				start_led = -1
 				end_led = -1
+				end_point = -1
 				if LINES_20[line][0] == point_index:
 					start_led = line_led['n'][0]
 					end_led = line_led['n'][1]
+					end_point = LINES_20[line][1]
 				else:
 					start_led = line_led['n'][1]
 					end_led = line_led['n'][0]
-				end_points_dict[str(end_led)] = end_led
+					end_point = LINES_20[line][0]
+				end_points_dict[str(end_point)] = end_point
 
 				pixels_list.append(pixels)
 				start_led_list.append(start_led)
@@ -678,6 +683,65 @@ def flow_lines_by_point_20(interval):
 		pre_point_index = point_index
 
 	fill_20(COLOR.RED)
+
+
+# 随机找个五边形，5条边颜色滚动。
+def scroll_pentagon_lines_20(interval):
+	pre_point_index = -1
+
+	for x in range(0, 12):
+		point_index = x
+		if point_index == pre_point_index:
+			continue
+
+		lines = POINT_LINES_20[str(point_index)]
+		if lines:
+			end_points_dict = {}
+
+			for line in lines:
+				end_point = -1
+				if LINES_20[line][0] == point_index:
+					end_proint = LINES_20[line][1]
+				else:
+					end_proint = LINES_20[line][0]
+				end_points_dict[str(end_point)] = end_point
+	
+			# 获取五边形线
+			pentagon_lines_dict = get_layer_lines_20(end_points_dict)
+
+			# 按照实际相邻关系排序
+			lines = []
+			for _, line in pentagon_lines_dict.items():
+				lines.append(line)
+			order_lines = []
+			first_line = lines.pop()
+			order_lines.append(first_line)
+			next_point = LINES_20[first_line][1]
+			count = len(lines)
+			for x in range(0, count):
+				for line in lines:
+					if next_point == LINES_20[line][0]:
+					 	order_lines.append(line)
+					 	next_point = LINES_20[line][1]
+					 	lines.remove(line)
+					 	break
+					elif next_point == LINES_20[line][1]:
+						order_lines.append(line)
+						next_point = LINES_20[line][0]
+						lines.remove(line)
+						break
+
+			colors = [COLOR.RED, COLOR.GREEN, COLOR.PURPLE, COLOR.TURQUOISE, COLOR.YELLOW, COLOR.BLUE]
+			for x in range(0, len(order_lines)):
+				color = colors.pop()
+				colors.insert(0, color)
+				index = 0
+				for line in order_lines:
+					light_line_20(line, colors[index])
+					index += 1
+				time.sleep(interval)
+
+		pre_point_index = point_index
 
 
 def get_layer_lines_26(points_dict, pre_points_dict):
