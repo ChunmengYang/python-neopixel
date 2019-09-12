@@ -730,7 +730,7 @@ def scroll_pentagon_lines_20(interval):
 						next_point = LINES_20[line][0]
 						lines.remove(line)
 						break
-
+			# 滚动变颜色
 			colors = [COLOR.RED, COLOR.GREEN, COLOR.PURPLE, COLOR.TURQUOISE, COLOR.YELLOW, COLOR.BLUE]
 			for x in range(0, len(order_lines)):
 				color = colors.pop()
