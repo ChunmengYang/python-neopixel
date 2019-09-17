@@ -6,7 +6,7 @@ from time import sleep
 
 def playmusic():
 	mixer.init()
-	mixer.music.load("./music/1.mp3")
+	mixer.music.load("/home/pi/Desktop/python-neopixel/music/1.mp3")
 	mixer.music.play()
 
 playmusic()
