@@ -97,19 +97,22 @@ def contain(items, item):
 	return 0
 
 
-def light_line(line):
+def light_line(line, color):
+	if not color:
+		color = COLOR.RED
+
 	start_point = LINES_LED[line][0]
 	end_point = LINES_LED[line][1]
 
 	if start_point > end_point:
 		current_point = start_point
 		while current_point >= end_point:
-			pixels[current_point - 1] = COLOR.RED;
+			pixels[current_point - 1] = color;
 			current_point -= 1
 	else:
 		current_point = start_point
 		while current_point <= end_point:
-			pixels[current_point - 1] = COLOR.RED;
+			pixels[current_point - 1] = color;
 			current_point += 1
 	
 	pixels.show()
@@ -144,27 +147,79 @@ def randomsurface(line, ignore_surface):
 
 	return -1
 
-def flow(start_point, second):
+
+# 从一条边向另一条相邻的边流动点亮
+def flow(start_point, flow_line_number, interval):
 	ignore_line = [];
+	pre_line = -1
+	pre_start_led = -1
+	pre_end_led = -1
 
 	index = 0
-	while index < 10:
+	while index < flow_line_number:
 		line = randomline(start_point, ignore_line)
 		if line == -1:
 			return
 
-		light_line(line)
-		time.sleep(second)
-
-		pixels.fill(COLOR.BLACK)
-		ignore_line = [line];
-
-		if LINES[line][0] == start_point:
-			start_point = LINES[line][1]
+		if pre_line == -1:
+			light_line(line, COLOR.RED)
 		else:
-			start_point = LINES[line][0]
+			line_led = LINES_LED[line]
+			start_led = -1
+			end_led = -1
+			if LINES_20[line][0] == start_point:
+				start_led = line_led[0]
+				end_led = line_led[1]
+			else:
+				start_led = line_led[1]
+				end_led = line_led[0]
+
+			pre_led_count = abs(pre_start_led - pre_end_led) + 1
+			max_led_count = pre_led_count 
+			led_count = abs(start_led - end_led) + 1
+			if led_count > max_led_count:
+				max_led_count = led_count
+
+			for x in range(0, max_led_count):
+				if x < pre_led_count:
+					if pre_start_led > pre_end_led:
+						pixels[pre_start_led - x] = COLOR.GREEN;
+					else:
+						pixels[pre_start_led + x] = COLOR.GREEN;
+					pixels.show()
+
+				if x < led_count:
+					if start_led > end_led:
+						pixels[start_led - x] = COLOR.RED;
+					else:
+						pixels[start_led + x] = COLOR.RED;
+					pixels.show()
+
+				time.sleep(interval)
+
+			pre_line = line
+			pre_start_led = start_led
+			pre_end_led = end_led
+		
+		ignore_line = [line];
+		if LINES_20[line][0] == start_point:
+			start_point = LINES_20[line][1]
+		else:
+			start_point = LINES_20[line][0]
 
 		index += 1
+
+	if pre_line > -1:
+		pre_led_count = abs(pre_start_led - pre_end_led) + 1
+		for x in range(0, pre_led_count):
+			if pre_start_led > pre_end_led:
+				pixels[pre_start_led - x] = COLOR.GREEN;
+			else:
+				pixels[pre_start_led + x] = COLOR.GREEN;
+			pixels.show()
+
+			time.sleep(interval)
+
 
 def flash(second):
 	pre_index = -1
@@ -218,6 +273,6 @@ def scroll(line, second):
 
 if __name__ == '__main__':
 	while True:	
-		flow(0, 0.5)
+		flow(0, 40, 0.2)
 		flash(1)
 		scroll(8, 0.5)
