@@ -679,7 +679,7 @@ def flow_lines_by_point_20(interval):
 			for key, line in lines_dict.items():
 				light_line_20(line, COLOR.RED)
 
-			time.sleep(interval * )
+			time.sleep(interval)
 		pre_point_index = point_index
 
 	fill_20(COLOR.RED)
@@ -772,7 +772,7 @@ def get_layer_lines_26(points_dict, pre_points_dict):
 # 点亮一层线，再点亮相邻平行的下一层线，以此类推，没有下一层就返回
 def light_layer_to_layer_26(layer_number, interval):
 	pre_points_dict = {}
-	points_dict = ["0": 0, "1": 1, "2": 2, "3": 3]
+	points_dict = {"0": 0, "1": 1, "2": 2, "3": 3}
 	pre_lines_dict = {}
 
 	index = 0
