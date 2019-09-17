@@ -157,7 +157,7 @@ def flow(start_point, flow_line_number, interval):
 		line = randomline(start_point, ignore_line)
 		if line == -1:
 			return
-
+		print(line)
 		if pre_line == -1:
 			light_line(line, COLOR.RED)
 		else:
