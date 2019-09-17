@@ -344,10 +344,34 @@ def flow_26(start_point, flow_line_number, interval):
 			return
 
 		if pre_line == -1:
-			light_line_26(line, COLOR.RED)
+			line_led = LINES_LED_26[line]
+			pixels = pixels_26[line_led['c']]
+			start_led = -1
+			end_led = -1
+			if LINES_26[line][0] == start_point:
+				start_led = line_led['n'][0]
+				end_led = line_led['n'][1]
+			else:
+				start_led = line_led['n'][1]
+				end_led = line_led['n'][0]
+
+			pre_line = line
+			pre_pixels = pixels
+			pre_start_led = start_led
+			pre_end_led = end_led
+
+			pre_led_count = abs(pre_start_led - pre_end_led) + 1
+			for x in range(0, pre_led_count):
+				if pre_start_led > pre_end_led:
+					pre_pixels[pre_start_led - x] = COLOR.RED;
+				else:
+					pre_pixels[pre_start_led + x] = COLOR.RED;
+				pre_pixels.show()
+
+				time.sleep(interval)
 		else:
 			line_led = LINES_LED_26[line]
-			pixels = pixels_26[pre_line_led['c']]
+			pixels = pixels_26[line_led['c']]
 			start_led = -1
 			end_led = -1
 			if LINES_26[line][0] == start_point:
@@ -419,10 +443,34 @@ def flow_20(start_point, flow_line_number, interval):
 			return
 
 		if pre_line == -1:
-			light_line_20(line, COLOR.RED)
+			line_led = LINES_LED_20[line]
+			pixels = pixels_20[line_led['c']]
+			start_led = -1
+			end_led = -1
+			if LINES_20[line][0] == start_point:
+				start_led = line_led['n'][0]
+				end_led = line_led['n'][1]
+			else:
+				start_led = line_led['n'][1]
+				end_led = line_led['n'][0]
+
+			pre_line = line
+			pre_pixels = pixels
+			pre_start_led = start_led
+			pre_end_led = end_led
+
+			pre_led_count = abs(pre_start_led - pre_end_led) + 1
+			for x in range(0, pre_led_count):
+				if pre_start_led > pre_end_led:
+					pre_pixels[pre_start_led - x] = COLOR.RED;
+				else:
+					pre_pixels[pre_start_led + x] = COLOR.RED;
+				pre_pixels.show()
+
+				time.sleep(interval)
 		else:
 			line_led = LINES_LED_20[line]
-			pixels = pixels_20[pre_line_led['c']]
+			pixels = pixels_20[line_led['c']]
 			start_led = -1
 			end_led = -1
 			if LINES_20[line][0] == start_point:
