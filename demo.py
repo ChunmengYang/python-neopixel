@@ -167,7 +167,7 @@ def flow(start_point, flow_line_number, interval):
 			line_led = LINES_LED[line]
 			start_led = -1
 			end_led = -1
-			if LINES_20[line][0] == start_point:
+			if LINES[line][0] == start_point:
 				start_led = line_led[0]
 				end_led = line_led[1]
 			else:
@@ -202,10 +202,10 @@ def flow(start_point, flow_line_number, interval):
 			pre_end_led = end_led
 		
 		ignore_line = [line];
-		if LINES_20[line][0] == start_point:
-			start_point = LINES_20[line][1]
+		if LINES[line][0] == start_point:
+			start_point = LINES[line][1]
 		else:
-			start_point = LINES_20[line][0]
+			start_point = LINES[line][0]
 
 		index += 1
 
