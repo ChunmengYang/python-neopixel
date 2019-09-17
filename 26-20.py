@@ -992,8 +992,8 @@ def double_flash_surface():
 def double_flow():
 	fill_26(COLOR.GREEN)
 	fill_20(COLOR.GREEN)
-	threading.Thread(target=flow_26,args=(0, 40, 0.2)).start()
-	threading.Thread(target=flow_20,args=(0, 40, 0.2)).start()
+	threading.Thread(target=flow_26,args=(0, 40, 0.1)).start()
+	threading.Thread(target=flow_20,args=(0, 40, 0.1)).start()
 
 
 # 双平行滚动
