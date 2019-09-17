@@ -147,6 +147,9 @@ def randomsurface(line, ignore_surface):
 
 # 从一条边向另一条相邻的边流动点亮
 def flow(start_point, flow_line_number, interval):
+	pixels.fill(COLOR.GREEN)
+	pixels.show()	
+
 	ignore_line = [];
 	pre_line = -1
 	pre_start_led = -1
@@ -157,9 +160,31 @@ def flow(start_point, flow_line_number, interval):
 		line = randomline(start_point, ignore_line)
 		if line == -1:
 			return
-		print(line)
+
 		if pre_line == -1:
-			light_line(line, COLOR.RED)
+			line_led = LINES_LED[line]
+			start_led = -1
+			end_led = -1
+			if LINES[line][0] == start_point:
+				start_led = line_led[0]
+				end_led = line_led[1]
+			else:
+				start_led = line_led[1]
+				end_led = line_led[0]
+
+			pre_line = line
+			pre_start_led = start_led
+			pre_end_led = end_led
+
+			pre_led_count = abs(pre_start_led - pre_end_led) + 1
+			for x in range(0, pre_led_count):
+				if pre_start_led > pre_end_led:
+					pixels[pre_start_led - x] = COLOR.RED;
+				else:
+					pixels[pre_start_led + x] = COLOR.RED;
+				pixels.show()
+
+				time.sleep(interval)
 		else:
 			line_led = LINES_LED[line]
 			start_led = -1
