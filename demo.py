@@ -98,9 +98,6 @@ def contain(items, item):
 
 
 def light_line(line, color):
-	if not color:
-		color = COLOR.RED
-
 	start_point = LINES_LED[line][0]
 	end_point = LINES_LED[line][1]
 
@@ -233,7 +230,7 @@ def flash(second):
 		lines = SURFACES[surface_index]
 		if lines:
 			for line in lines:
-				light_line(line)
+				light_line(line, COLOR.RED)
 
 		time.sleep(second)
 		pixels.fill(COLOR.BLACK)
@@ -259,7 +256,7 @@ def scroll(line, second):
 						target_line = lines[x - 2]
 
 		if target_line > -1:
-			light_line(target_line)
+			light_line(target_line, COLOR.RED)
 		else:
 			return
 
