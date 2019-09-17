@@ -217,6 +217,7 @@ def scroll(line, second):
 
 
 if __name__ == '__main__':
-	flow(0, 0.2)
-	flash(1)
-	scroll(8, 0.5)
+	while True:	
+		flow(0, 0.5)
+		flash(1)
+		scroll(8, 0.5)
