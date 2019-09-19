@@ -3,23 +3,23 @@
 
 import random
 import time
-import board
-import neopixel
+from rpi_ws281x import ws, Color, Adafruit_NeoPixel
+import RPi.GPIO as GPIO
 
-LED_PIN = board.D21
+GPIO.setmode(GPIO.BCM)
+
+LED_PIN = 13
 LED_COUNT = 165
-LED_BRIGHTNESS = 0.2
-LED_ORDER = neopixel.GRB
+LED_BRIGHTNESS = 128
 
 class COLOR:
-	BLACK = (0, 0, 0)
-	GREEN = (0, 255, 0)
-	RED = (255, 0, 0)
-	BLUE = (0, 0, 255)
+	BLACK = Color(0, 0, 0)
+	GREEN = Color(0, 255, 0)
+	RED = Color(255, 0, 0)
+	BLUE = Color(0, 0, 255)
 
-
-pixels = neopixel.NeoPixel(LED_PIN, LED_COUNT, brightness=LED_BRIGHTNESS, auto_write=False,
-pixel_order=LED_ORDER)
+strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, 800000, 5, False, LED_BRIGHTNESS, 1, ws.WS2811_STRIP_GRB)
+strip.begin()
 
 
 LINES_LED = [
@@ -104,15 +104,14 @@ def light_line(line, color):
 	if start_point > end_point:
 		current_point = start_point
 		while current_point >= end_point:
-			pixels[current_point - 1] = color;
+			strip.setPixelColor(current_point - 1, color)
 			current_point -= 1
 	else:
 		current_point = start_point
 		while current_point <= end_point:
-			pixels[current_point - 1] = color;
+			strip.setPixelColor(current_point - 1, color)
 			current_point += 1
-	
-	pixels.show()
+	strip.show()
 
 def randomline(point, ignore_line):
 	lines = []
@@ -147,8 +146,9 @@ def randomsurface(line, ignore_surface):
 
 # 从一条边向另一条相邻的边流动点亮
 def flow(start_point, flow_line_number, interval):
-	pixels.fill(COLOR.GREEN)
-	pixels.show()	
+	for i in range(strip.numPixels()):
+		strip.setPixelColor(i, COLOR.GREEN)
+	strip.show()
 
 	ignore_line = [];
 	pre_line = -1
@@ -179,10 +179,10 @@ def flow(start_point, flow_line_number, interval):
 			pre_led_count = abs(pre_start_led - pre_end_led) + 1
 			for x in range(0, pre_led_count):
 				if pre_start_led > pre_end_led:
-					pixels[pre_start_led - x] = COLOR.RED;
+					strip.setPixelColor(pre_start_led - x, COLOR.RED)
 				else:
-					pixels[pre_start_led + x] = COLOR.RED;
-				pixels.show()
+					strip.setPixelColor(pre_start_led + x, COLOR.RED)
+				strip.show()
 
 				time.sleep(interval)
 		else:
@@ -205,17 +205,17 @@ def flow(start_point, flow_line_number, interval):
 			for x in range(0, max_led_count):
 				if x < pre_led_count:
 					if pre_start_led > pre_end_led:
-						pixels[pre_start_led - x] = COLOR.GREEN;
+						strip.setPixelColor(pre_start_led - x, COLOR.GREEN)
 					else:
-						pixels[pre_start_led + x] = COLOR.GREEN;
-					pixels.show()
+						strip.setPixelColor(pre_start_led + x, COLOR.GREEN)
+					strip.show()
 
 				if x < led_count:
 					if start_led > end_led:
-						pixels[start_led - x] = COLOR.RED;
+						strip.setPixelColor(start_led - x, COLOR.RED)
 					else:
-						pixels[start_led + x] = COLOR.RED;
-					pixels.show()
+						strip.setPixelColor(start_led + x, COLOR.RED)
+					strip.show()
 
 				time.sleep(interval)
 
@@ -235,10 +235,10 @@ def flow(start_point, flow_line_number, interval):
 		pre_led_count = abs(pre_start_led - pre_end_led) + 1
 		for x in range(0, pre_led_count):
 			if pre_start_led > pre_end_led:
-				pixels[pre_start_led - x] = COLOR.GREEN;
+				strip.setPixelColor(pre_start_led - x, COLOR.GREEN)
 			else:
-				pixels[pre_start_led + x] = COLOR.GREEN;
-			pixels.show()
+				strip.setPixelColor(pre_start_led + x, COLOR.GREEN)
+			strip.show()
 
 			time.sleep(interval)
 
