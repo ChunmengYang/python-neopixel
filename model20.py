@@ -11,24 +11,19 @@ import RPi.GPIO as GPIO
 GPIO.setmode(GPIO.BCM)
 
 
-# LED_COUNT = 15        # Number of LED pixels.
-# LED_PIN = 13          # GPIO pin connected to the pixels (must support PWM! GPIO 13 or 18 on RPi 3).
-# LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
-# LED_DMA = 11          # DMA channel to use for generating signal (Between 1 and 14)
-# LED_BRIGHTNESS = 128  # Set to 0 for darkest and 255 for brightest
-# LED_INVERT = False    # True to invert the signal (when using NPN transistor level shift)
-# LED_CHANNEL = 1       # 0 or 1
-# LED_STRIP = ws.WS2811_STRIP_GRB
+LED_COUNT = 2340      # Number of LED pixels.
+LED_PIN = 18          # GPIO pin connected to the pixels (must support PWM! GPIO 13 or 18 on RPi 3).
+LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
+LED_DMA = 11          # DMA channel to use for generating signal (Between 1 and 14)
+LED_BRIGHTNESS = 128  # Set to 0 for darkest and 255 for brightest
+LED_INVERT = False    # True to invert the signal (when using NPN transistor level shift)
+LED_CHANNEL = 0       # 0 or 1
+LED_STRIP = ws.WS2811_STRIP_GRB
 
-STRIPS = [1,2,3];
-STRIPS[0] = Adafruit_NeoPixel(960, 12, 800000, 11, False, 128, 1, ws.WS2811_STRIP_GRB)
-STRIPS[0].begin()
 
-STRIPS[1] = Adafruit_NeoPixel(960, 16, 800000, 12, False, 128, 1, ws.WS2811_STRIP_GRB)
-STRIPS[1].begin()
+STRIP = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL, LED_STRIP)
+STRIP.begin()
 
-STRIPS[2] = Adafruit_NeoPixel(960, 21, 800000, 13, False, 128, 1, ws.WS2811_STRIP_GRB)
-STRIPS[2].begin()
 
 class COLOR:
 	BLACK = Color(0, 0, 0)
@@ -41,36 +36,36 @@ class COLOR:
 
 
 LINES_LED = [
-	{'c': 0, 'n': [0, 59]},		#0
-	{'c': 0, 'n': [0, 59]}, 	#1
-	{'c': 0, 'n': [0, 59]}, 	#2
-	{'c': 0, 'n': [0, 59]}, 	#3
-	{'c': 0, 'n': [0, 59]}, 	#4
-	{'c': 0, 'n': [0, 59]}, 	#5
-	{'c': 0, 'n': [0, 59]}, 	#6
-	{'c': 0, 'n': [0, 59]}, 	#7
-	{'c': 0, 'n': [0, 59]}, 	#8
-	{'c': 0, 'n': [0, 59]}, 	#9
-	{'c': 1, 'n': [0, 59]}, 	#10
-	{'c': 1, 'n': [0, 59]}, 	#11
-	{'c': 1, 'n': [0, 59]},  	#12
-	{'c': 1, 'n': [0, 59]}, 	#13
-	{'c': 1, 'n': [0, 59]},  	#14
-	{'c': 1, 'n': [0, 59]},  	#15
-	{'c': 1, 'n': [0, 59]},  	#16
-	{'c': 1, 'n': [0, 59]},  	#17
-	{'c': 1, 'n': [0, 59]},  	#18
-	{'c': 1, 'n': [0, 59]},  	#19
-	{'c': 2, 'n': [0, 59]},  	#20
-	{'c': 2, 'n': [0, 59]},  	#21
-	{'c': 2, 'n': [0, 59]},  	#22
-	{'c': 2, 'n': [0, 59]},  	#23
-	{'c': 2, 'n': [0, 59]},  	#24
-	{'c': 2, 'n': [0, 59]},  	#25
-	{'c': 2, 'n': [0, 59]},  	#26
-	{'c': 2, 'n': [0, 59]},  	#27
-	{'c': 2, 'n': [0, 59]},  	#28
-	{'c': 2, 'n': [0, 59]}  	#29
+	[0, 77], 	#0
+	[0, 77], 	#1
+	[0, 77], 	#2
+	[0, 77], 	#3
+	[0, 77], 	#4
+	[0, 77], 	#5
+	[0, 77], 	#6
+	[0, 77], 	#7
+	[0, 77], 	#8
+	[0, 77], 	#9
+	[0, 77], 	#10
+	[0, 77],  	#11
+	[0, 77],  	#12
+	[0, 77],  	#13
+	[0, 77],  	#14
+	[0, 77],  	#15
+	[0, 77],  	#16
+	[0, 77],  	#17
+	[0, 77],  	#18
+	[0, 77],  	#19
+	[0, 77],  	#20
+	[0, 77],  	#21
+	[0, 77],  	#22
+	[0, 77],  	#23
+	[0, 77],  	#24
+	[0, 77],  	#25
+	[0, 77],  	#26
+	[0, 77],  	#27
+	[0, 77],  	#28
+	[0, 77]  	#29
 ]
 
 LINES = [
@@ -165,21 +160,20 @@ def contain(items, item):
 def light_line(line, color):
 	line_led = LINES_LED[line]
 
-	strip = STRIPS[line_led['c']]
-	start_point = line_led['n'][0]
-	end_point = line_led['n'][1]
+	start_point = line_led[0]
+	end_point = line_led[1]
 
 	if start_point > end_point:
 		current_point = start_point
 		while current_point >= end_point:
-			strip.setPixelColor(current_point - 1, color)
+			STRIP.setPixelColor(current_point - 1, color)
 			current_point -= 1
 	else:
 		current_point = start_point
 		while current_point <= end_point:
-			strip.setPixelColor(current_point - 1, color)
+			STRIP.setPixelColor(current_point - 1, color)
 			current_point += 1
-	strip.show()
+	STRIP.show()
 
 def random_line(point, ignore_line):
 	lines_all = POINT_LINES[str(point)]
@@ -214,18 +208,15 @@ def random_surface(line, ignore_surface):
 
 
 def fill(color):
-	for x in range(0, len(STRIPS)):
-		strip = STRIPS[x]
-		for i in range(strip.numPixels()):
-			strip.setPixelColor(i, color)
-		strip.show()
+	for i in range(STRIP.numPixels()):
+		STRIP.setPixelColor(i, color)
+	STRIP.show()
 
 
 # 从一条边向另一条相邻的边流动点亮
 def flow(start_point, flow_line_number, interval):
 	ignore_line = [];
 	pre_line = -1
-	pre_strip = None
 	pre_start_led = -1
 	pre_end_led = -1
 
@@ -237,41 +228,38 @@ def flow(start_point, flow_line_number, interval):
 
 		if pre_line == -1:
 			line_led = LINES_LED[line]
-			strip = STRIPS[line_led['c']]
 			start_led = -1
 			end_led = -1
 			if LINES[line][0] == start_point:
-				start_led = line_led['n'][0]
-				end_led = line_led['n'][1]
+				start_led = line_led[0]
+				end_led = line_led[1]
 			else:
-				start_led = line_led['n'][1]
-				end_led = line_led['n'][0]
+				start_led = line_led[1]
+				end_led = line_led[0]
 
 			pre_line = line
-			pre_strip = strip
 			pre_start_led = start_led
 			pre_end_led = end_led
 
 			pre_led_count = abs(pre_start_led - pre_end_led) + 1
 			for x in range(0, pre_led_count):
 				if pre_start_led > pre_end_led:
-					pre_strip.setPixelColor(pre_start_led - x, COLOR.RED)
+					STRIP.setPixelColor(pre_start_led - x, COLOR.RED)
 				else:
-					pre_strip.setPixelColor(pre_start_led + x, COLOR.RED)
-				pre_strip.show()
+					STRIP.setPixelColor(pre_start_led + x, COLOR.RED)
+				STRIP.show()
 
 				time.sleep(interval)
 		else:
 			line_led = LINES_LED[line]
-			strip = STRIPS[line_led['c']]
 			start_led = -1
 			end_led = -1
 			if LINES[line][0] == start_point:
-				start_led = line_led['n'][0]
-				end_led = line_led['n'][1]
+				start_led = line_led[0]
+				end_led = line_led[1]
 			else:
-				start_led = line_led['n'][1]
-				end_led = line_led['n'][0]
+				start_led = line_led[1]
+				end_led = line_led[0]
 
 			pre_led_count = abs(pre_start_led - pre_end_led) + 1
 			max_led_count = pre_led_count 
@@ -282,22 +270,21 @@ def flow(start_point, flow_line_number, interval):
 			for x in range(0, max_led_count):
 				if x < pre_led_count:
 					if pre_start_led > pre_end_led:
-						pre_strip.setPixelColor(pre_start_led - x, COLOR.GREEN)
+						STRIP.setPixelColor(pre_start_led - x, COLOR.GREEN)
 					else:
-						pre_strip.setPixelColor(pre_start_led + x, COLOR.GREEN)
-					pre_strip.show()
+						STRIP.setPixelColor(pre_start_led + x, COLOR.GREEN)
+					STRIP.show()
 
 				if x < led_count:
 					if start_led > end_led:
-						strip.setPixelColor(start_led - x, COLOR.RED)
+						STRIP.setPixelColor(start_led - x, COLOR.RED)
 					else:
-						strip.setPixelColor(start_led - x, COLOR.RED)
-					strip.show()
+						STRIP.setPixelColor(start_led - x, COLOR.RED)
+					STRIP.show()
 
 				time.sleep(interval)
 
 			pre_line = line
-			pre_strip = strip
 			pre_start_led = start_led
 			pre_end_led = end_led
 		
@@ -313,10 +300,10 @@ def flow(start_point, flow_line_number, interval):
 		pre_led_count = abs(pre_start_led - pre_end_led) + 1
 		for x in range(0, pre_led_count):
 			if pre_start_led > pre_end_led:
-				pre_strip.setPixelColor(pre_start_led - x, COLOR.GREEN)
+				STRIP.setPixelColor(pre_start_led - x, COLOR.GREEN)
 			else:
-				pre_strip.setPixelColor(pre_start_led + x, COLOR.GREEN)
-			pre_strip.show()
+				STRIP.setPixelColor(pre_start_led + x, COLOR.GREEN)
+			STRIP.show()
 
 			time.sleep(interval)
 
@@ -402,7 +389,6 @@ def flow_lines_by_point(interval):
 		lines = POINT_LINES[str(point_index)]
 		if lines:
 			# 获取几条边的灯带控制器、起始点的灯点索引、边的灯点数
-			strip_list = []
 			start_led_list = []
 			end_led_list = []
 			led_count_list = []
@@ -411,21 +397,19 @@ def flow_lines_by_point(interval):
 
 			for line in lines:
 				line_led = LINES_LED[line]
-				strip = STRIPS[line_led['c']]
 				start_led = -1
 				end_led = -1
 				end_point = -1
 				if LINES[line][0] == point_index:
-					start_led = line_led['n'][0]
-					end_led = line_led['n'][1]
+					start_led = line_led[0]
+					end_led = line_led[1]
 					end_point = LINES[line][1]
 				else:
-					start_led = line_led['n'][1]
-					end_led = line_led['n'][0]
+					start_led = line_led[1]
+					end_led = line_led[0]
 					end_point = LINES[line][0]
 				end_points_dict[str(end_point)] = end_point
 
-				strip_list.append(strip)
 				start_led_list.append(start_led)
 				end_led_list.append(end_led)
 
@@ -439,18 +423,17 @@ def flow_lines_by_point(interval):
 
 			# 几条边同时逐个点亮边上的灯点，
 			for x in range(0, max_led_count):
-				for y in range(0, len(strip_list)):
-					strip = strip_list[y]
+				for y in range(0, len(start_led_list)):
 					start_led = start_led_list[y]
 					end_led = end_led_list[y]
 					led_count = led_count_list[y]
 					
 					if x < led_count:
 						if start_led > end_led:
-							strip.setPixelColor(start_led - x, COLOR.RED)
+							STRIP.setPixelColor(start_led - x, COLOR.RED)
 						else:
-							strip.setPixelColor(start_led + x, COLOR.RED)
-						strip.show()
+							STRIP.setPixelColor(start_led + x, COLOR.RED)
+						STRIP.show()
 
 				time.sleep(interval)
 

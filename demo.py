@@ -11,7 +11,7 @@ GPIO.setmode(GPIO.BCM)
 #12\18\21 0
 
 LED_1_PIN = 21
-LED_1_COUNT = 1800
+LED_1_COUNT = 312
 LED_1_BRIGHTNESS = 128
 
 LED_2_PIN = 18
@@ -69,7 +69,7 @@ if __name__ == '__main__':
 		time.sleep(1)
 
 		for i in range(strip1.numPixels()):
-			strip1.setPixelColor(i, COLOR.GREEN)
+			strip1.setPixelColor(i, COLOR.YELLOW)
 		strip1.show()
 
 		# for i in range(strip2.numPixels()):
