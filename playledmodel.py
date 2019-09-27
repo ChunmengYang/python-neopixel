@@ -41,31 +41,51 @@ def alternate_flash(flash_number, interval):
 def double_flash_surface():
 	model26.fill(COLOR.GREEN)
 	model20.fill(COLOR.RED)
-	threading.Thread(target=model20.flash_surface,args=(20, 0.2)).start()
-	threading.Thread(target=model26.flash_surface,args=(20, 0.2)).start()
+
+	thread20 = threading.Thread(target=model20.flash_surface,args=(20, 0.2))
+	thread20.start()
+	thread26 = threading.Thread(target=model26.flash_surface,args=(20, 0.2))
+	thread26.start()
+
+	thread20.join()
+	thread26.join()
 
 
 # 双流动点亮
 def double_flow():
 	model26.fill(COLOR.GREEN)
 	model20.fill(COLOR.GREEN)
-	threading.Thread(target=model20.flow,args=(0, 40, 0.1)).start()
-	threading.Thread(target=model26.flow,args=(0, 40, 0.1)).start()
+
+	thread20 = threading.Thread(target=model20.flow,args=(0, 40, 0.1))
+	thread20.start()
+	thread26 = threading.Thread(target=model26.flow,args=(0, 40, 0.1))
+	thread26.start()
+
+	thread20.join()
+	thread26.join()
 
 
 # 双平行滚动
 def double_scroll():
 	model26.fill(COLOR.GREEN)
 	model20.fill(COLOR.RED)
-	threading.Thread(target=model26.parallel_line_scroll,args=(0, 40, 0.2)).start()
-	threading.Thread(target=model26.parallel_line_scroll,args=(1, 40, 0.2)).start()
+
+	thread1 = threading.Thread(target=model26.parallel_line_scroll,args=(0, 40, 0.2))
+	thread1.start()
+	thread2 = threading.Thread(target=model26.parallel_line_scroll,args=(1, 40, 0.2))
+	thread2.start()
+
+	thread1.join()
+	thread2.join()
 
 
 if __name__ == '__main__':
 	while True:
-		# alternate_flash(20, 0.2)
+		print("=======Start Alternate Flash========")
+		alternate_flash(20, 0.2)
+		print("=======Start Double Flow========")
 		double_flow()
-		time.sleep(300)
+
 
 
 		
