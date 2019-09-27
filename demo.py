@@ -11,7 +11,7 @@ GPIO.setmode(GPIO.BCM)
 #12\18\21 0
 
 LED_1_PIN = 21
-LED_1_COUNT = 312
+LED_1_COUNT = 240
 LED_1_BRIGHTNESS = 128
 
 LED_2_PIN = 18
@@ -22,12 +22,9 @@ LED_3_PIN = 12
 LED_3_COUNT = 300
 LED_3_BRIGHTNESS = 128
 
-
-# GPIO.setup(LED_1_PIN, GPIO.OUT)
-# GPIO.setup(LED_2_PIN, GPIO.OUT)
-# GPIO.setup(LED_3_PIN, GPIO.OUT)
-# pwm = GPIO.PWM(LED_PIN, 50)
-# pwm.start(0)
+GPIO.setup(LED_1_PIN, GPIO.OUT)
+GPIO.setup(LED_2_PIN, GPIO.OUT)
+GPIO.setup(LED_3_PIN, GPIO.OUT)
 
 class COLOR:
 	BLACK = Color(0, 0, 0)
@@ -50,12 +47,8 @@ strip1.begin()
 
 if __name__ == '__main__':
 	while True:	
-		# flow(0, 40, 0.05)
-		# flash(1)
-		# scroll(8, 0.5)
 		for i in range(strip1.numPixels()):
-			if (i % 2) == 0:
-				strip1.setPixelColor(i, COLOR.RED)
+			strip1.setPixelColor(i, COLOR.RED)
 		strip1.show()
 
 		# for i in range(strip2.numPixels()):
@@ -69,7 +62,7 @@ if __name__ == '__main__':
 		time.sleep(1)
 
 		for i in range(strip1.numPixels()):
-			strip1.setPixelColor(i, COLOR.YELLOW)
+			strip1.setPixelColor(i, COLOR.GREEN)
 		strip1.show()
 
 		# for i in range(strip2.numPixels()):
