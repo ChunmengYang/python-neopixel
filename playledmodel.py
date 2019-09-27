@@ -56,9 +56,9 @@ def double_flow():
 	model26.fill(COLOR.GREEN)
 	model20.fill(COLOR.GREEN)
 
-	thread20 = threading.Thread(target=model20.flow,args=(0, 40, 0.1))
+	thread20 = threading.Thread(target=model20.flow,args=(0, 5, 0.1))
 	thread20.start()
-	thread26 = threading.Thread(target=model26.flow,args=(0, 40, 0.1))
+	thread26 = threading.Thread(target=model26.flow,args=(0, 5, 0.1))
 	thread26.start()
 
 	thread20.join()
@@ -81,8 +81,12 @@ def double_scroll():
 
 if __name__ == '__main__':
 	while True:
-		print("=======Start Alternate Flash========")
-		alternate_flash(20, 0.2)
+		# print("=======Start Alternate Flash========")
+		# alternate_flash(20, 0.2)
+
+		# print("=======Start Double Scroll========")
+		# double_scroll()
+
 		print("=======Start Double Flow========")
 		double_flow()
 

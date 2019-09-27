@@ -127,25 +127,25 @@ SURFACES = [
 ]
 
 
-POINT_LINES = {};
-line_index = 0;
+POINT_LINES = {}
+line_index = 0
 for line in LINES:
 	for point in line:
 		point_key = str(point)
 		if not (point_key in POINT_LINES.keys()):
-			POINT_LINES[point_key] = [];
-		POINT_LINES[point_key].append(line_index);
+			POINT_LINES[point_key] = []
+		POINT_LINES[point_key].append(line_index)
 	line_index += 1
 
 
-LINE_SURFACES = {};
-surface_index = 0;
+LINE_SURFACES = {}
+surface_index = 0
 for surface in SURFACES:
 	for line in surface:
 		line_key = str(line)
 		if not (line_key in LINE_SURFACES.keys()):
-			LINE_SURFACES[line_key] = [];
-		LINE_SURFACES[line_key].append(surface_index);
+			LINE_SURFACES[line_key] = []
+		LINE_SURFACES[line_key].append(surface_index)
 	surface_index += 1
 
 
@@ -182,7 +182,7 @@ def random_line(point, ignore_line):
 	if lines_all:
 		for line in lines_all:
 			if contain(ignore_line, line) == 0:
-				lines.append(line);
+				lines.append(line)
 
 	if len(lines) > 0:
 		line_index = random.randint(0, len(lines) - 1)
@@ -198,7 +198,7 @@ def random_surface(line, ignore_surface):
 	if surfaces_all:
 		for surface in surfaces_all:
 			if contain(ignore_surface, surface) == 0:
-				surfaces.append(surface);
+				surfaces.append(surface)
 
 	if len(surfaces) > 0:
 		surface_index = random.randint(0, len(surfaces) - 1)
@@ -212,13 +212,79 @@ def fill(color):
 		STRIP.setPixelColor(i, color)
 	STRIP.show()
 
+# 逐个点亮一条边上的所有灯
+def flow_line(start_point, line, color, interval):
+	line_led = LINES_LED[line]
+	start_led = -1
+	end_led = -1
+	if LINES[line][0] == start_point:
+		start_led = line_led[0]
+		end_led = line_led[1]
+	else:
+		start_led = line_led[1]
+		end_led = line_led[0]
+
+	led_count = abs(start_led - end_led) + 1
+	for x in range(0, led_count):
+		if start_led > end_led:
+			STRIP.setPixelColor(start_led - x, color)
+		else:
+			STRIP.setPixelColor(start_led + x, color)
+		STRIP.show()
+		time.sleep(interval)
+
+
+# 逐个点亮两条边上的所有灯
+def flow_double_line(pre_start_point, pre_line, pre_color, start_point, line, color, interval):
+	pre_line_led = LINES_LED[pre_line]
+	pre_start_led = -1
+	pre_end_led = -1
+	if LINES[pre_line][0] == pre_start_point:
+		pre_start_led = pre_line_led[0]
+		pre_end_led = pre_line_led[1]
+	else:
+		pre_start_led = pre_line_led[1]
+		pre_end_led = pre_line_led[0]
+
+	line_led = LINES_LED[line]
+	start_led = -1
+	end_led = -1
+	if LINES[line][0] == start_point:
+		start_led = line_led[0]
+		end_led = line_led[1]
+	else:
+		start_led = line_led[1]
+		end_led = line_led[0]
+
+	pre_led_count = abs(pre_start_led - pre_end_led) + 1
+	led_count = abs(start_led - end_led) + 1
+	max_led_count = pre_led_count 
+	if led_count > max_led_count:
+		max_led_count = led_count
+
+	for x in range(0, max_led_count):
+		if x < pre_led_count:
+			if pre_start_led > pre_end_led:
+				STRIP.setPixelColor(pre_start_led - x, pre_color)
+			else:
+				STRIP.setPixelColor(pre_start_led + x, pre_color)
+
+		if x < led_count:
+			if start_led > end_led:
+				STRIP.setPixelColor(start_led - x, color)
+			else:
+				STRIP.setPixelColor(start_led - x, color)
+
+		STRIP.show()
+		time.sleep(interval)
+
 
 # 从一条边向另一条相邻的边流动点亮
 def flow(start_point, flow_line_number, interval):
-	ignore_line = [];
+	ignore_line = []
+	
+	pre_start_point = -1
 	pre_line = -1
-	pre_start_led = -1
-	pre_end_led = -1
 
 	index = 0
 	while index < flow_line_number:
@@ -227,68 +293,15 @@ def flow(start_point, flow_line_number, interval):
 			return
 
 		if pre_line == -1:
-			line_led = LINES_LED[line]
-			start_led = -1
-			end_led = -1
-			if LINES[line][0] == start_point:
-				start_led = line_led[0]
-				end_led = line_led[1]
-			else:
-				start_led = line_led[1]
-				end_led = line_led[0]
-
+			flow_line(start_point, line, COLOR.RED, interval)
+			pre_start_point = start_point
 			pre_line = line
-			pre_start_led = start_led
-			pre_end_led = end_led
-
-			pre_led_count = abs(pre_start_led - pre_end_led) + 1
-			for x in range(0, pre_led_count):
-				if pre_start_led > pre_end_led:
-					STRIP.setPixelColor(pre_start_led - x, COLOR.RED)
-				else:
-					STRIP.setPixelColor(pre_start_led + x, COLOR.RED)
-				STRIP.show()
-
-				time.sleep(interval)
 		else:
-			line_led = LINES_LED[line]
-			start_led = -1
-			end_led = -1
-			if LINES[line][0] == start_point:
-				start_led = line_led[0]
-				end_led = line_led[1]
-			else:
-				start_led = line_led[1]
-				end_led = line_led[0]
-
-			pre_led_count = abs(pre_start_led - pre_end_led) + 1
-			max_led_count = pre_led_count 
-			led_count = abs(start_led - end_led) + 1
-			if led_count > max_led_count:
-				max_led_count = led_count
-
-			for x in range(0, max_led_count):
-				if x < pre_led_count:
-					if pre_start_led > pre_end_led:
-						STRIP.setPixelColor(pre_start_led - x, COLOR.GREEN)
-					else:
-						STRIP.setPixelColor(pre_start_led + x, COLOR.GREEN)
-					STRIP.show()
-
-				if x < led_count:
-					if start_led > end_led:
-						STRIP.setPixelColor(start_led - x, COLOR.RED)
-					else:
-						STRIP.setPixelColor(start_led - x, COLOR.RED)
-					STRIP.show()
-
-				time.sleep(interval)
-
+			flow_double_line(pre_start_point, pre_line, COLOR.GREEN, start_point, line, COLOR.RED, interval)
+			pre_start_point = start_point
 			pre_line = line
-			pre_start_led = start_led
-			pre_end_led = end_led
-		
-		ignore_line = [line];
+
+		ignore_line = [line]
 		if LINES[line][0] == start_point:
 			start_point = LINES[line][1]
 		else:
@@ -297,15 +310,8 @@ def flow(start_point, flow_line_number, interval):
 		index += 1
 
 	if pre_line > -1:
-		pre_led_count = abs(pre_start_led - pre_end_led) + 1
-		for x in range(0, pre_led_count):
-			if pre_start_led > pre_end_led:
-				STRIP.setPixelColor(pre_start_led - x, COLOR.GREEN)
-			else:
-				STRIP.setPixelColor(pre_start_led + x, COLOR.GREEN)
-			STRIP.show()
+		flow_line(pre_start_point, pre_line, COLOR.GREEN, interval)
 
-			time.sleep(interval)
 
 # 随机点亮某个面
 def flash_surface(flash_number, interval):
@@ -358,6 +364,7 @@ def flash_double_surface(flash_number, interval):
 		pre_index = line_index
 		index += 1
 
+
 # 以给定点查找线，线的起始点都必须在给定点里
 def get_layer_lines(points_dict):
 	lines_dict = {}
@@ -373,7 +380,7 @@ def get_layer_lines(points_dict):
 					another_point = LINES[line][0]
 
 				if str(another_point) in points_dict:
-					lines_dict[str(line)] = line;
+					lines_dict[str(line)] = line
 	return lines_dict
 
 
@@ -408,7 +415,8 @@ def flow_lines_by_point(interval):
 					start_led = line_led[1]
 					end_led = line_led[0]
 					end_point = LINES[line][0]
-				end_points_dict[str(end_point)] = end_point
+				if end_point > -1:
+					end_points_dict[str(end_point)] = end_point
 
 				start_led_list.append(start_led)
 				end_led_list.append(end_led)
@@ -433,8 +441,7 @@ def flow_lines_by_point(interval):
 							STRIP.setPixelColor(start_led - x, COLOR.RED)
 						else:
 							STRIP.setPixelColor(start_led + x, COLOR.RED)
-						STRIP.show()
-
+				STRIP.show()
 				time.sleep(interval)
 
 			# 熄灭所有边的灯点
@@ -467,11 +474,12 @@ def scroll_pentagon_lines(interval):
 			for line in lines:
 				end_point = -1
 				if LINES[line][0] == point_index:
-					end_proint = LINES[line][1]
+					end_point = LINES[line][1]
 				else:
-					end_proint = LINES[line][0]
-				end_points_dict[str(end_point)] = end_point
-	
+					end_point = LINES[line][0]
+				if end_point > -1:
+					end_points_dict[str(end_point)] = end_point
+			
 			# 获取五边形线
 			pentagon_lines_dict = get_layer_lines(end_points_dict)
 
@@ -487,10 +495,10 @@ def scroll_pentagon_lines(interval):
 			for x in range(0, count):
 				for line in lines:
 					if next_point == LINES[line][0]:
-					 	order_lines.append(line)
-					 	next_point = LINES[line][1]
-					 	lines.remove(line)
-					 	break
+						order_lines.append(line)
+						next_point = LINES[line][1]
+						lines.remove(line)
+						break
 					elif next_point == LINES[line][1]:
 						order_lines.append(line)
 						next_point = LINES[line][0]
