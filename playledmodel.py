@@ -81,12 +81,6 @@ def double_scroll():
 
 if __name__ == '__main__':
 	while True:
-		# print("=======Start Alternate Flash========")
-		# alternate_flash(20, 0.2)
-
-		# print("=======Start Double Scroll========")
-		# double_scroll()
-
 		print("=======Start Double Flow========")
 		double_flow()
 
