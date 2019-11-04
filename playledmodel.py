@@ -18,7 +18,7 @@ class COLOR:
 	TURQUOISE = Color(0, 255, 255)
 
 
-# 两个模型交替亮起
+# 两个模型交替亮起(信号有干扰，颜色不对)alternate_flash(40, 1.5)
 def alternate_flash(flash_number, interval):
 	index = 0
 	while index < flash_number:
@@ -39,12 +39,12 @@ def alternate_flash(flash_number, interval):
 
 # 双随机面闪烁
 def double_flash_surface():
-	model26.fill(COLOR.GREEN)
-	model20.fill(COLOR.RED)
+	model26.fill(COLOR.BLACK)
+	model20.fill(COLOR.BLACK)
 
-	thread20 = threading.Thread(target=model20.flash_surface,args=(20, 0.2))
+	thread20 = threading.Thread(target=model20.flash_surface,args=(10, 0.5))
 	thread20.start()
-	thread26 = threading.Thread(target=model26.flash_surface,args=(20, 0.2))
+	thread26 = threading.Thread(target=model26.flash_surface,args=(10, 0.5))
 	thread26.start()
 
 	thread20.join()
@@ -53,12 +53,12 @@ def double_flash_surface():
 
 # 双流动点亮
 def double_flow():
-	model26.fill(COLOR.GREEN)
-	model20.fill(COLOR.GREEN)
+	model26.fill(COLOR.BLACK)
+	model20.fill(COLOR.BLACK)
 
-	thread20 = threading.Thread(target=model20.flow,args=(0, 5, 0.1))
+	thread20 = threading.Thread(target=model20.flow,args=(0, 6, 0.1))
 	thread20.start()
-	thread26 = threading.Thread(target=model26.flow,args=(0, 5, 0.1))
+	thread26 = threading.Thread(target=model26.flow,args=(0, 6, 0.1))
 	thread26.start()
 
 	thread20.join()
@@ -66,13 +66,13 @@ def double_flow():
 
 
 # 双平行滚动
-def double_scroll():
-	model26.fill(COLOR.GREEN)
-	model20.fill(COLOR.RED)
+def double_pentagon_octagon():
+	model26.fill(COLOR.BLACK)
+	model20.fill(COLOR.BLACK)
 
-	thread1 = threading.Thread(target=model26.parallel_line_scroll,args=(0, 40, 0.2))
+	thread1 = threading.Thread(target=model20.light_pentagon_lines, args=(COLOR.RED, 1))
 	thread1.start()
-	thread2 = threading.Thread(target=model26.parallel_line_scroll,args=(1, 40, 0.2))
+	thread2 = threading.Thread(target=model26.light_octagon_lines, args=(COLOR.RED, 1))
 	thread2.start()
 
 	thread1.join()
@@ -81,8 +81,26 @@ def double_scroll():
 
 if __name__ == '__main__':
 	while True:
-		print("=======Start Double Flow========")
+		alternate_flash(6, 1.5)
+		double_flash_surface()
 		double_flow()
+		double_pentagon_octagon()
+
+		model26.fill(COLOR.BLACK)
+		model20.fill(COLOR.BLACK)
+
+		model26.flash_triangle_square_triangle(10, 0.5)
+		model26.light_layer_to_layer(0, 10, 0.5)
+		model26.light_layer_to_layer(1, 10, 0.5)
+
+		model26.fill(COLOR.BLACK)
+
+		model20.flash_double_surface(10, 0.5)
+		model20.flow_lines_by_point(COLOR.RED, 0.1)
+		model20.scroll_pentagon_lines(COLOR.RED, 0.5)
+
+		model26.fill(COLOR.BLACK)
+		model20.fill(COLOR.BLACK)
 
 
 

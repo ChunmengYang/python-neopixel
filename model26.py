@@ -35,53 +35,53 @@ class COLOR:
 
 
 LINES_LED = [
-	[960, 1019], 	#0
+	[1019, 960], 	#0
 	[480, 539], 	#1
 	[1440, 1499], 	#2
-	[0, 59], 		#3
+	[59, 0], 		#3
 	[1020, 1079], 	#4
-	[420, 479], 	#5
-	[900, 959], 	#6
-	[1380, 1439], 	#7
-	[1860, 1919], 	#8
+	[479, 420], 	#5
+	[959, 900], 	#6
+	[1439, 1380], 	#7
+	[1919, 1860], 	#8
 	[540, 599], 	#9
 	[60, 119], 		#10
 	[1500, 1559], 	#11
-	[2100, 2159], 	#12
-	[2040, 2099], 	#13
-	[1980, 2039], 	#14
-	[1920, 1979], 	#15
-	[2340, 2399], 	#16
-	[2280, 2339], 	#17
-	[2220, 2279], 	#18
-	[2160, 2219], 	#19
+	[2159, 2100], 	#12
+	[2099, 2040], 	#13
+	[2039, 1980], 	#14
+	[1979, 1920], 	#15
+	[2399, 2340], 	#16
+	[2339, 2280], 	#17
+	[2279, 2220], 	#18
+	[2219, 2160], 	#19
 	[1080, 1139], 	#20
-	[360, 419], 	#21
-	[840, 899], 	#22
-	[1320, 1379], 	#23
-	[1800, 1859], 	#24
+	[419, 360], 	#21
+	[899, 840], 	#22
+	[1379, 1320], 	#23
+	[1859, 1800], 	#24
 	[600, 659], 	#25
 	[120, 179], 	#26
 	[1560, 1619], 	#27
-	[2580, 2639], 	#28
-	[2520, 2579], 	#29
-	[2460, 2519], 	#30
-	[2400, 2459], 	#31
-	[2820, 2879], 	#32
-	[2760, 2819], 	#33
-	[2700, 2759], 	#34
-	[2640, 2699], 	#35
+	[2639, 2580], 	#28
+	[2579, 2520], 	#29
+	[2519, 2460], 	#30
+	[2459, 2400], 	#31
+	[2879, 2820], 	#32
+	[2819, 2760], 	#33
+	[2759, 2700], 	#34
+	[2699, 2640], 	#35
 	[1140, 1199], 	#36
-	[300, 359], 	#37
-	[780, 839], 	#38
-	[1260, 1319], 	#39
-	[1740, 1799], 	#40
+	[359, 300], 	#37
+	[839, 780], 	#38
+	[1319, 1260], 	#39
+	[1799, 1740], 	#40
 	[660, 719], 	#41
 	[180, 239], 	#42
 	[1620, 1679], 	#43
 	[1200, 1259], 	#44
-	[720, 779], 	#45
-	[1680, 1739], 	#46
+	[779, 720], 	#45
+	[1739, 1680], 	#46
 	[240, 299] 		#47
 ]
 
@@ -137,7 +137,7 @@ LINES = [
 ]
 
 SURFACES = [
-	[0, 1, 2, 3], 		#0
+	[0, 1, 2, 3], 		#00
 
 	[0, 6, 13, 5], 		#1
 	[7, 14, 6], 		#2
@@ -149,13 +149,13 @@ SURFACES = [
 	[5, 12, 4],  		#8
 
 	[12, 21, 28, 20],  	#9
-	[13, 22, 29, 21],  	#10
+	[13, 22, 29, 21],  	#100
 	[14, 23, 30, 22],  	#11
-	[15, 24, 31, 23],  	#12
+	[15, 24, 31, 23],  	#120
 	[16, 25, 32, 24],  	#13
-	[17, 26, 33, 25],  	#14
+	[17, 26, 33, 25],  	#140
 	[18, 27, 34, 26],  	#15
-	[19, 20, 35, 27],  	#16
+	[19, 20, 35, 27],  	#160
 
 	[28, 37, 36],  		#17
 	[29, 38, 44, 37],  	#18
@@ -166,7 +166,7 @@ SURFACES = [
 	[34, 43, 42],  		#23
 	[35, 36, 47, 43],  	#24
 
-	[44, 45, 46, 47]  	#25
+	[44, 45, 46, 47]  	#250
 ]
 
 POINT_LINES = {}
@@ -191,6 +191,25 @@ for surface in SURFACES:
 	surface_index += 1
 
 
+SURFACES_POINT = {}
+surface_index = 0
+for surface in SURFACES:
+	surface_points_dict = {}
+	for line in surface:
+		for point in LINES[line]:
+			point_key = str(point)
+			if not (point_key in surface_points_dict.keys()):
+				surface_points_dict[point_key] = point
+
+	surface_points = []
+	for _, point in surface_points_dict.items():
+		surface_points.append(point)
+
+	SURFACES_POINT[str(surface_index)] = surface_points
+	surface_index += 1
+
+
+
 def contain(items, item):
 	if len(items) > 0:
 		for i in items:
@@ -208,14 +227,14 @@ def light_line(line, color):
 	if start_point > end_point:
 		current_point = start_point
 		while current_point >= end_point:
-			STRIP.setPixelColor(current_point - 1, color)
+			STRIP.setPixelColor(current_point, color)
 			current_point -= 1
 	else:
 		current_point = start_point
 		while current_point <= end_point:
-			STRIP.setPixelColor(current_point - 1, color)
+			STRIP.setPixelColor(current_point, color)
 			current_point += 1
-	STRIP.show()
+	
 
 
 def random_line(point, ignore_line):
@@ -271,11 +290,20 @@ def flow_line(start_point, line, color, interval):
 		end_led = line_led[0]
 
 	led_count = abs(start_led - end_led) + 1
-	for x in range(0, led_count):
+	interval_count = 0
+	for x in range(0, led_count, 1):
 		if start_led > end_led:
 			STRIP.setPixelColor(start_led - x, color)
 		else:
 			STRIP.setPixelColor(start_led + x, color)
+
+		interval_count += 1
+		if interval_count == 5:
+			STRIP.show()
+			time.sleep(interval)
+			interval_count = 0
+
+	if interval_count > 0:
 		STRIP.show()
 		time.sleep(interval)
 
@@ -308,6 +336,7 @@ def flow_double_line(pre_start_point, pre_line, pre_color, start_point, line, co
 	if led_count > max_led_count:
 		max_led_count = led_count
 
+	interval_count = 0
 	for x in range(0, max_led_count):
 		if x < pre_led_count:
 			if pre_start_led > pre_end_led:
@@ -319,8 +348,15 @@ def flow_double_line(pre_start_point, pre_line, pre_color, start_point, line, co
 			if start_led > end_led:
 				STRIP.setPixelColor(start_led - x, color)
 			else:
-				STRIP.setPixelColor(start_led - x, color)
+				STRIP.setPixelColor(start_led + x, color)
 
+		interval_count += 1
+		if interval_count == 5:
+			STRIP.show()
+			time.sleep(interval)
+			interval_count = 0
+
+	if interval_count > 0:
 		STRIP.show()
 		time.sleep(interval)
 
@@ -335,15 +371,13 @@ def flow(start_point, flow_line_number, interval):
 	index = 0
 	while index < flow_line_number:
 		line = random_line(start_point, ignore_line)
-		if line == -1:
-			return
 
 		if pre_line == -1:
 			flow_line(start_point, line, COLOR.RED, interval)
 			pre_start_point = start_point
 			pre_line = line
 		else:
-			flow_double_line(pre_start_point, pre_line, COLOR.GREEN, start_point, line, COLOR.RED, interval)
+			flow_double_line(pre_start_point, pre_line, COLOR.BLACK, start_point, line, COLOR.RED, interval)
 			pre_start_point = start_point
 			pre_line = line
 
@@ -356,7 +390,7 @@ def flow(start_point, flow_line_number, interval):
 		index += 1
 
 	if pre_line > -1:
-		flow_line(pre_start_point, pre_line, COLOR.GREEN, interval)
+		flow_line(pre_start_point, pre_line, COLOR.BLACK, interval)
 
 
 # 随机点亮某个面
@@ -372,11 +406,15 @@ def flash_surface(flash_number, interval):
 		if lines:
 			for line in lines:
 				light_line(line, COLOR.RED)
+		STRIP.show()
 
 		time.sleep(interval)
+
 		if lines:
 			for line in lines:
-				light_line(line, COLOR.GREEN)
+				light_line(line, COLOR.BLACK)
+		STRIP.show()
+		
 		pre_index = surface_index
 		index += 1
 
@@ -384,8 +422,10 @@ def flash_surface(flash_number, interval):
 # 平行线滚动(只限于正方形的面)
 def parallel_line_scroll(start_line, scroll_number, interval):
 	light_line(start_line, COLOR.RED)
+	STRIP.show()
 	time.sleep(interval)
-	light_line(start_line, COLOR.GREEN)
+	light_line(start_line, COLOR.BLACK)
+	STRIP.show()
 
 	ignore_surface = []
 	index = 0
@@ -404,11 +444,13 @@ def parallel_line_scroll(start_line, scroll_number, interval):
 
 		if target_line > -1:
 			light_line(target_line, COLOR.RED)
+			STRIP.show()
 		else:
 			return
 
 		time.sleep(interval)
-		light_line(target_line, COLOR.GREEN)
+		light_line(target_line, COLOR.BLACK)
+		STRIP.show()
 
 		ignore_surface = [surface]
 		start_line = target_line
@@ -442,10 +484,13 @@ def get_layer_lines(points_dict, pre_points_dict):
 
 
 # 点亮一层线，再点亮相邻平行的下一层线，以此类推，没有下一层就返回
-def light_layer_to_layer(layer_number, interval):
+def light_layer_to_layer(direction, layer_number, interval):
 	pre_points_dict = {}
-	points_dict = {"0": 0, "1": 1, "2": 2, "3": 3}
 	pre_lines_dict = {}
+	if direction:
+		points_dict = {"0": 0, "1": 1, "2": 2, "3": 3}
+	else:
+		points_dict = {"4": 4, "11": 11, "12": 12, "19": 19}
 
 	index = 0
 	while index < layer_number:
@@ -456,6 +501,7 @@ def light_layer_to_layer(layer_number, interval):
 
 		for key, line in lines_dict.items():
 			light_line(line, COLOR.RED)
+		STRIP.show()
 
 		pre_lines_dict = lines_dict
 
@@ -470,6 +516,53 @@ def light_layer_to_layer(layer_number, interval):
 
 		time.sleep(interval)
 		index += 1
+
+	for key, line in pre_lines_dict.items():
+		light_line(line, COLOR.BLACK)
+	STRIP.show()
+
+
+# 随机点亮两条平行八边形
+def light_octagon_lines(color, interval):
+	for index in [0,10,12,14,16,25]:
+		pre_points_dict = {}
+		pre_lines_dict = {}
+
+		points = SURFACES_POINT[str(index)]
+		points_dict = {}
+		for point in points:
+			points_dict[str(point)] = point
+
+		lines_dict, next_points_dict = get_layer_lines(points_dict, pre_points_dict)
+
+		pre_points_dict = points_dict
+		pre_lines_dict = lines_dict
+
+		points_dict = next_points_dict
+		lines_dict, next_points_dict = get_layer_lines(points_dict, pre_points_dict)
+
+		for _, line in lines_dict.items():
+			light_line(line, color)
+
+		pre_points_dict = points_dict
+		pre_lines_dict = lines_dict
+
+		points_dict = next_points_dict
+		lines_dict, next_points_dict = get_layer_lines(points_dict, pre_points_dict)
+
+		for _, line in lines_dict.items():
+			light_line(line, color)
+
+		STRIP.show()
+		time.sleep(interval)
+
+
+		for _, line in pre_lines_dict.items():
+			light_line(line, COLOR.BLACK)
+
+		for _, line in lines_dict.items():
+			light_line(line, COLOR.BLACK)
+		STRIP.show()
 
 
 # 查询一条边所在的面
@@ -561,6 +654,7 @@ def flash_triangle_square_triangle(flash_number, interval):
 			if lines:
 				for line in lines:
 					light_line(line, COLOR.RED)
+		STRIP.show()
 
 		time.sleep(interval)
 
@@ -568,18 +662,19 @@ def flash_triangle_square_triangle(flash_number, interval):
 			lines = SURFACES[target_surface]
 			if lines:
 				for line in lines:
-					light_line(line, COLOR.GREEN)
+					light_line(line, COLOR.BLACK)
 
 		lines = SURFACES[start_surface]
 		if lines:
 			for line in lines:
-				light_line(line, COLOR.GREEN)
+				light_line(line, COLOR.BLACK)
 		
 		if target_other_surface >= 0:
 			lines = SURFACES[target_other_surface]
 			if lines:
 				for line in lines:
-					light_line(line, COLOR.GREEN)
+					light_line(line, COLOR.BLACK)
+		STRIP.show()
 
 		opposite_line, opposite_surface = get_surface_by_opposite_line(start_line, start_surface)
 		if opposite_line >= 0 and opposite_surface >= 0:
