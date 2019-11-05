@@ -394,7 +394,11 @@ def flow(start_point, flow_line_number, interval):
 
 
 # 随机点亮某个面
-def flash_surface(flash_number, interval):
+# color1，点亮颜色。
+# color2，恢复到原来颜色。
+# flash_number，点亮次数。
+# interval，点亮时间间隔，单位为秒。
+def flash_surface(color1, color2, flash_number, interval):
 	pre_index = -1
 	index = 0
 	while index < flash_number:
@@ -405,22 +409,28 @@ def flash_surface(flash_number, interval):
 		lines = SURFACES[surface_index]
 		if lines:
 			for line in lines:
-				light_line(line, COLOR.RED)
+				light_line(line, color1)
 		STRIP.show()
 
 		time.sleep(interval)
 
 		if lines:
 			for line in lines:
-				light_line(line, COLOR.BLACK)
+				light_line(line, color2)
 		STRIP.show()
 		
 		pre_index = surface_index
 		index += 1
 
 
+
 # 平行线滚动(只限于正方形的面)
-def parallel_line_scroll(start_line, scroll_number, interval):
+# color1，平行线点亮颜色。
+# color2，平行线恢复到原来颜色。
+# start_line，开始边的编号。
+# scroll_number，滚动次数。
+# interval，滚动时间间隔，单位为秒。
+def parallel_line_scroll(color1, color2, start_line, scroll_number, interval):
 	light_line(start_line, COLOR.RED)
 	STRIP.show()
 	time.sleep(interval)
@@ -483,24 +493,36 @@ def get_layer_lines(points_dict, pre_points_dict):
 	return lines_dict, next_points_dict
 
 
-# 点亮一层线，再点亮相邻平行的下一层线，以此类推，没有下一层就返回
-def light_layer_to_layer(direction, layer_number, interval):
+# 点亮一层线，再点亮相邻平行的下一层线，以此类推，没有下一层就返回。
+# color1，点亮颜色。
+# color2，恢复到原来颜色。
+# direction，开始方向，0或1。
+# layer_number，变换次数，点亮一层为一次。
+# interval，点亮时间间隔，单位为秒。
+def light_layer_to_layer(color1, color2, direction, layer_number, interval):
 	pre_points_dict = {}
 	pre_lines_dict = {}
-	if direction:
+
+	if direction == 0:
 		points_dict = {"0": 0, "1": 1, "2": 2, "3": 3}
-	else:
+	elif direction == 1:
+		points_dict = {"20": 20, "21": 21, "22": 22, "23": 23}
+	elif direction == 2:
 		points_dict = {"4": 4, "11": 11, "12": 12, "19": 19}
+	elif direction == 3:
+		points_dict = {"7": 7, "8": 8, "15": 15, "16": 16}
+	else:
+		points_dict = {"0": 0, "1": 1, "2": 2, "3": 3}
 
 	index = 0
 	while index < layer_number:
 		lines_dict, next_points_dict = get_layer_lines(points_dict, pre_points_dict)
 
 		for key, line in pre_lines_dict.items():
-			light_line(line, COLOR.BLACK)
+			light_line(line, color2)
 
 		for key, line in lines_dict.items():
-			light_line(line, COLOR.RED)
+			light_line(line, color1)
 		STRIP.show()
 
 		pre_lines_dict = lines_dict
@@ -518,12 +540,15 @@ def light_layer_to_layer(direction, layer_number, interval):
 		index += 1
 
 	for key, line in pre_lines_dict.items():
-		light_line(line, COLOR.BLACK)
+		light_line(line, color2)
 	STRIP.show()
 
 
 # 随机点亮两条平行八边形
-def light_octagon_lines(color, interval):
+# color1，点亮颜色。
+# color2，恢复到原来颜色。
+# interval，点亮时间间隔，单位为秒。
+def light_octagon_lines(color1, color2, interval):
 	for index in [0,10,12,14,16,25]:
 		pre_points_dict = {}
 		pre_lines_dict = {}
@@ -542,7 +567,7 @@ def light_octagon_lines(color, interval):
 		lines_dict, next_points_dict = get_layer_lines(points_dict, pre_points_dict)
 
 		for _, line in lines_dict.items():
-			light_line(line, color)
+			light_line(line, color1)
 
 		pre_points_dict = points_dict
 		pre_lines_dict = lines_dict
@@ -551,17 +576,17 @@ def light_octagon_lines(color, interval):
 		lines_dict, next_points_dict = get_layer_lines(points_dict, pre_points_dict)
 
 		for _, line in lines_dict.items():
-			light_line(line, color)
+			light_line(line, color1)
 
 		STRIP.show()
 		time.sleep(interval)
 
 
 		for _, line in pre_lines_dict.items():
-			light_line(line, COLOR.BLACK)
+			light_line(line, color2)
 
 		for _, line in lines_dict.items():
-			light_line(line, COLOR.BLACK)
+			light_line(line, color2)
 		STRIP.show()
 
 
@@ -627,7 +652,11 @@ def get_surface_by_neighbouring_line(line, surface):
 
 
 # 正二六面体中一个正方形与其相邻的两个三角形一起点亮，然后熄灭随后下一组点亮
-def flash_triangle_square_triangle(flash_number, interval):
+# color1，点亮颜色。
+# color2，恢复到原来颜色。
+# flash_number，变换次数。
+# interval，点亮时间间隔，单位为秒。
+def flash_triangle_square_triangle(color1, color2, flash_number, interval):
 	start_line = 13
 	start_surface = 1
 
@@ -642,18 +671,18 @@ def flash_triangle_square_triangle(flash_number, interval):
 			lines = SURFACES[target_surface]
 			if lines:
 				for line in lines:
-					light_line(line, COLOR.RED)
+					light_line(line, color1)
 
 		lines = SURFACES[start_surface]
 		if lines:
 			for line in lines:
-				light_line(line, COLOR.RED)
+				light_line(line, color1)
 		
 		if target_other_surface >= 0:
 			lines = SURFACES[target_other_surface]
 			if lines:
 				for line in lines:
-					light_line(line, COLOR.RED)
+					light_line(line, color1)
 		STRIP.show()
 
 		time.sleep(interval)
@@ -662,18 +691,18 @@ def flash_triangle_square_triangle(flash_number, interval):
 			lines = SURFACES[target_surface]
 			if lines:
 				for line in lines:
-					light_line(line, COLOR.BLACK)
+					light_line(line, color2)
 
 		lines = SURFACES[start_surface]
 		if lines:
 			for line in lines:
-				light_line(line, COLOR.BLACK)
+				light_line(line, color2)
 		
 		if target_other_surface >= 0:
 			lines = SURFACES[target_other_surface]
 			if lines:
 				for line in lines:
-					light_line(line, COLOR.BLACK)
+					light_line(line, color2)
 		STRIP.show()
 
 		opposite_line, opposite_surface = get_surface_by_opposite_line(start_line, start_surface)
