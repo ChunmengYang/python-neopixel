@@ -7,6 +7,9 @@ import time
 import board
 from rpi_ws281x import ws, Color, Adafruit_NeoPixel
 import RPi.GPIO as GPIO
+import colors
+
+COLOR = colors.COLOR
 
 GPIO.setmode(GPIO.BCM)
 
@@ -23,16 +26,6 @@ LED_STRIP = ws.WS2811_STRIP_GRB
 
 STRIP = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL, LED_STRIP)
 STRIP.begin()
-
-
-class COLOR:
-	BLACK = Color(0, 0, 0)
-	GREEN = Color(0, 255, 0)
-	RED = Color(255, 0, 0)
-	BLUE = Color(0, 0, 255)
-	YELLOW = Color(255, 255, 0)
-	PURPLE = Color(255, 0, 255)
-	TURQUOISE = Color(0, 255, 255)
 
 
 LINES_LED = [
@@ -126,7 +119,7 @@ SURFACES = [
 	[24, 29, 25] 	#19	
 ]
 
-
+# 点所在的线
 POINT_LINES = {}
 line_index = 0
 for line in LINES:
@@ -137,7 +130,7 @@ for line in LINES:
 		POINT_LINES[point_key].append(line_index)
 	line_index += 1
 
-
+# 线所在的面
 LINE_SURFACES = {}
 surface_index = 0
 for surface in SURFACES:
@@ -148,7 +141,7 @@ for surface in SURFACES:
 		LINE_SURFACES[line_key].append(surface_index)
 	surface_index += 1
 
-
+# 面上的点
 SURFACES_POINT = {}
 surface_index = 0
 for surface in SURFACES:
@@ -167,6 +160,10 @@ for surface in SURFACES:
 	surface_index += 1
 
 
+# 查询列表是否包含了某子项。
+# items，列表。
+# item，子项。
+# return, 包含返回1，不包含返回0
 def contain(items, item):
 	if len(items) > 0:
 		for i in items:
@@ -175,6 +172,100 @@ def contain(items, item):
 	return 0
 
 
+# 查找随机一条线。
+# point，在要查找线上的点。
+# ignore_line，要忽略的线的列表。
+# return，返回线的编号，没有查询到返回-1。
+def random_line(point, ignore_line):
+	lines_all = POINT_LINES[str(point)]
+	lines = []
+
+	if lines_all:
+		for line in lines_all:
+			if contain(ignore_line, line) == 0:
+				lines.append(line)
+
+	if len(lines) > 0:
+		line_index = random.randint(0, len(lines) - 1)
+		return lines[line_index]
+
+	return -1
+
+
+# 查找随机一个面
+# line，在要查找面上的线。
+# ignore_surface，要忽略的面的列表。
+# return，返回面的编号，没有查询到返回-1。
+def random_surface(line, ignore_surface):
+	surfaces_all = LINE_SURFACES[str(line)]
+	surfaces = []
+
+	if surfaces_all:
+		for surface in surfaces_all:
+			if contain(ignore_surface, surface) == 0:
+				surfaces.append(surface)
+
+	if len(surfaces) > 0:
+		surface_index = random.randint(0, len(surfaces) - 1)
+		return surfaces[surface_index]
+
+	return -1
+
+
+# 在所有线中查找起始点和结束点都在给定点列表中线
+# points_dict, 点的字典，格式为{'0':0, '1':1...}。
+def get_lines_by_start_end_at_points(points):
+	result_lines_dict = {}
+	result_lines = []
+	points_dict = {}
+	for point in points:
+		points_dict[str(point)] = point
+
+	for point in points:
+		lines = POINT_LINES[str(point)]
+		if lines:
+			for line in lines:
+				another_point = -1
+				if LINES[line][0] == point:
+					another_point = LINES[line][1]
+				if LINES[line][1] == point:
+					another_point = LINES[line][0]
+
+				if str(another_point) in points_dict:
+					result_lines_dict[str(line)] = line
+
+	for _, line in result_lines_dict.items():
+		result_lines.append(line)
+	return result_lines
+
+
+# 查找五边形的线
+# point，一个顶点
+def get_pentagon(point):
+	lines = POINT_LINES[str(point)]
+	if lines:
+		end_points = []
+
+		for line in lines:
+			end_point = -1
+			if LINES[line][0] == point:
+				end_point = LINES[line][1]
+			else:
+				end_point = LINES[line][0]
+
+			if end_point > -1:
+				end_points.append(end_point)
+		
+		# 获取五边形线
+		pentagon_lines = get_lines_by_start_end_at_points(end_points)
+
+		return pentagon_lines
+	return []
+
+
+# 设置一条线的亮灯颜色，调用该函数之后要再调用STRIP.show()才能起作用。
+# line，要设置的线编号。
+# color，设置的颜色。
 def light_line(line, color):
 	line_led = LINES_LED[line]
 
@@ -193,45 +284,31 @@ def light_line(line, color):
 			current_point += 1
 
 
-def random_line(point, ignore_line):
-	lines_all = POINT_LINES[str(point)]
-	lines = []
-
-	if lines_all:
-		for line in lines_all:
-			if contain(ignore_line, line) == 0:
-				lines.append(line)
-
+# 设置一组线的亮灯颜色。
+# lines，线的列表。
+# color，设置的颜色。
+def light_lines(lines, color):
 	if len(lines) > 0:
-		line_index = random.randint(0, len(lines) - 1)
-		return lines[line_index]
-
-	return -1
-
-
-def random_surface(line, ignore_surface):
-	surfaces_all = LINE_SURFACES[str(line)]
-	surfaces = []
-
-	if surfaces_all:
-		for surface in surfaces_all:
-			if contain(ignore_surface, surface) == 0:
-				surfaces.append(surface)
-
-	if len(surfaces) > 0:
-		surface_index = random.randint(0, len(surfaces) - 1)
-		return surfaces[surface_index]
-
-	return -1
+		for line in lines:
+			light_line(line, color)
+		STRIP.show()
 
 
+# 设置所有灯的亮灯颜色
+# color，设置的颜色。
 def fill(color):
 	for i in range(STRIP.numPixels()):
 		STRIP.setPixelColor(i, color)
 	STRIP.show()
 
-# 逐个点亮一条边上的所有灯
-def flow_line(start_point, line, color, interval):
+
+# 逐段点亮一条边上的所有灯
+# start_point，开始点，该点为line的一段点。
+# line，线的编号。
+# color，设置的颜色。
+# lamps_number，每段灯的数量。
+# interval，时间间隔，单位为秒。
+def flow_line(start_point, line, color, lamps_number, interval):
 	line_led = LINES_LED[line]
 	start_led = -1
 	end_led = -1
@@ -251,7 +328,7 @@ def flow_line(start_point, line, color, interval):
 			STRIP.setPixelColor(start_led + x, color)
 
 		interval_count += 1
-		if interval_count == 5:
+		if interval_count == lamps_number:
 			STRIP.show()
 			time.sleep(interval)
 			interval_count = 0
@@ -261,8 +338,16 @@ def flow_line(start_point, line, color, interval):
 		time.sleep(interval)
 
 
-# 逐个点亮两条边上的所有灯
-def flow_double_line(pre_start_point, pre_line, pre_color, start_point, line, color, interval):
+# 逐个段亮两条边上的所有灯
+# pre_start_point，第一条线的开始点，该点为pre_line的一段点。
+# pre_line，第一条线的编号。
+# pre_color，第一条线设置的颜色。
+# start_point，第二条线开始点，该点为line的一段点。
+# line，第二条线的编号。
+# color，第二条设置的颜色。
+# lamps_number，每段灯的数量。
+# interval，时间间隔，单位为秒。
+def flow_double_line(pre_start_point, pre_line, pre_color, start_point, line, color, lamps_number, interval):
 	pre_line_led = LINES_LED[pre_line]
 	pre_start_led = -1
 	pre_end_led = -1
@@ -304,7 +389,7 @@ def flow_double_line(pre_start_point, pre_line, pre_color, start_point, line, co
 				STRIP.setPixelColor(start_led + x, color)
 
 		interval_count += 1
-		if interval_count == 5:
+		if interval_count == lamps_number:
 			STRIP.show()
 			time.sleep(interval)
 			interval_count = 0
@@ -315,26 +400,37 @@ def flow_double_line(pre_start_point, pre_line, pre_color, start_point, line, co
 
 
 # 从一条边向另一条相邻的边流动点亮
-def flow(start_point, flow_line_number, interval):
-	ignore_line = []
-	
-	pre_start_point = -1
-	pre_line = -1
+# start_point，开始点。
+# max_line_number，最大亮灯线数，大于2。
+# flow_line_number，流动经过的线数。
+# color1，点亮颜色。
+# color2，恢复到原来颜色。
+# lamps_number，每次流动的灯数, 小于线的灯数（78）。
+# interval，每次流动的时间间隔，单位为秒
+def flow(start_point, max_line_number, flow_line_number, color1, color2, lamps_number, interval):
+	# 已经亮起的线列表
+	light_up_lines = []
 
 	index = 0
 	while index < flow_line_number:
+		ignore_line = []
+		for line_dict in light_up_lines:
+			ignore_line.append(line_dict["line"])
+
 		line = random_line(start_point, ignore_line)
+		if line == -1:
+			return
 
-		if pre_line == -1:
-			flow_line(start_point, line, COLOR.RED, interval)
-			pre_start_point = start_point
-			pre_line = line
+		if len(light_up_lines) < max_line_number:
+			flow_line(start_point, line, color1, lamps_number, interval)
 		else:
-			flow_double_line(pre_start_point, pre_line, COLOR.BLACK, start_point, line, COLOR.RED, interval)
-			pre_start_point = start_point
-			pre_line = line
+			pre_line_dict = light_up_lines.pop(0)
+			pre_start_point = pre_line_dict["start_point"]
+			pre_line = pre_line_dict["line"]
+			flow_double_line(pre_start_point, pre_line, color2, start_point, line, color1, lamps_number, interval)
 
-		ignore_line = [line]
+		light_up_lines.append({"start_point": start_point, "line": line})
+
 		if LINES[line][0] == start_point:
 			start_point = LINES[line][1]
 		else:
@@ -342,8 +438,13 @@ def flow(start_point, flow_line_number, interval):
 
 		index += 1
 
-	if pre_line > -1:
-		flow_line(pre_start_point, pre_line, COLOR.BLACK, interval)
+	light_up_lines_count = len(light_up_lines)
+	if light_up_lines_count > 0:
+		for x in range(0, light_up_lines_count):
+			pre_line_dict = light_up_lines.pop(0)
+			pre_start_point = pre_line_dict["start_point"]
+			pre_line = pre_line_dict["line"]
+			flow_line(pre_start_point, pre_line, color2, lamps_number, interval)
 
 
 # 随机点亮某个面
@@ -360,22 +461,17 @@ def flash_surface(color1, color2, flash_number, interval):
 			continue
 
 		lines = SURFACES[surface_index]
-		if lines:
-			for line in lines:
-				light_line(line, color1)
+		light_lines(lines, color1)
 
 		STRIP.show()
 		time.sleep(interval)
 
-		if lines:
-			for line in lines:
-				light_line(line, color2)
+		light_lines(lines, color2)
 		STRIP.show()
 
 		pre_index = surface_index
 
 		index += 1
-
 
 
 # 随机点亮一条线所在的面
@@ -392,48 +488,19 @@ def flash_double_surface(color1, color2, flash_number, interval):
 			continue
 
 		surfaces = LINE_SURFACES[str(line_index)]
+		lines = []
 		if surfaces:
 			for surface in surfaces:
-				lines = SURFACES[surface]
-				if lines:
-					for line in lines:
-						light_line(line, color1)
-					STRIP.show()
-
+				lines += SURFACES[surface]
+				
+		light_lines(lines, color1)
 		time.sleep(interval)
-		if surfaces:
-			for surface in surfaces:
-				lines = SURFACES[surface]
-				if lines:
-					for line in lines:
-						light_line(line, color2)
-					STRIP.show()
+		light_lines(lines, color2)
 
 		pre_index = line_index
 		index += 1
 
-
-
-# 以给定点查找线，线的起始点都必须在给定点里
-def get_layer_lines(points_dict):
-	lines_dict = {}
-
-	for key, point in points_dict.items():
-		lines = POINT_LINES[str(point)]
-		if lines:
-			for line in lines:
-				another_point = -1
-				if LINES[line][0] == point:
-					another_point = LINES[line][1]
-				if LINES[line][1] == point:
-					another_point = LINES[line][0]
-
-				if str(another_point) in points_dict:
-					lines_dict[str(line)] = line
-	return lines_dict
-
-
-
+      
 # 逐个点亮点所在线的所有灯点，再熄灭, 最后点亮五边形。 0-11每个点都执行一次效果，最后全部灯都点亮。
 # color1，点亮颜色。
 # color2，恢复到原来颜色。
@@ -453,7 +520,7 @@ def flow_lines_by_point(color1, color2, interval):
 			end_led_list = []
 			led_count_list = []
 			max_led_count = 0
-			end_points_dict = {}
+			end_points = []
 
 			for line in lines:
 				line_led = LINES_LED[line]
@@ -469,7 +536,7 @@ def flow_lines_by_point(color1, color2, interval):
 					end_led = line_led[0]
 					end_point = LINES[line][0]
 				if end_point > -1:
-					end_points_dict[str(end_point)] = end_point
+					end_points.append(end_point)
 
 				start_led_list.append(start_led)
 				end_led_list.append(end_led)
@@ -480,7 +547,7 @@ def flow_lines_by_point(color1, color2, interval):
 					max_led_count = led_count
 
 			# 获取点下一层五边形线
-			lines_dict = get_layer_lines(end_points_dict)
+			pentagon_lines = get_lines_by_start_end_at_points(end_points)
 
 			# 几条边同时逐个点亮边上的灯点
 			interval_count = 0
@@ -497,7 +564,7 @@ def flow_lines_by_point(color1, color2, interval):
 							STRIP.setPixelColor(start_led + x, color1)
 
 				interval_count += 1
-				if interval_count == 5:
+				if interval_count == 10:
 					STRIP.show()
 					time.sleep(interval)
 					interval_count = 0
@@ -507,23 +574,16 @@ def flow_lines_by_point(color1, color2, interval):
 				time.sleep(interval)
 
 			# 熄灭所有边的灯点
-			for line in lines:
-				light_line(line, color2)
-			STRIP.show()
+			light_lines(lines, color2)
 
 			# 点亮五边形
-			for key, line in lines_dict.items():
-				light_line(line, color1)
-			STRIP.show()
+			light_lines(pentagon_lines, color1)
 
 			time.sleep(interval * 20)
 			# 熄灭五边形
-			for key, line in lines_dict.items():
-				light_line(line, color2)
-			STRIP.show()
+			light_lines(pentagon_lines, color2)
 
 		pre_point_index = point_index
-
 
 
 # 随机点亮五边形。
@@ -538,34 +598,15 @@ def light_pentagon_lines(color1, color2, interval):
 		if point_index == pre_point_index:
 			continue
 
-		lines = POINT_LINES[str(point_index)]
+		lines = get_pentagon(point_index)
 		if lines:
-			end_points_dict = {}
-
-			for line in lines:
-				end_point = -1
-				if LINES[line][0] == point_index:
-					end_point = LINES[line][1]
-				else:
-					end_point = LINES[line][0]
-				if end_point > -1:
-					end_points_dict[str(end_point)] = end_point
-			
-			# 获取五边形线
-			pentagon_lines_dict = get_layer_lines(end_points_dict)
-
-			for _, line in pentagon_lines_dict.items():
-				light_line(line, color1)
-			STRIP.show()
+			light_lines(lines, color1)
 
 			time.sleep(interval)
 
-			for _, line in pentagon_lines_dict.items():
-				light_line(line, color2)
-			STRIP.show()
+			light_lines(lines, color2)
 
 		pre_point_index = point_index
-
 
 
 # 随机找个五边形，5条边颜色滚动。
@@ -579,26 +620,9 @@ def scroll_pentagon_lines(color, interval):
 		if point_index == pre_point_index:
 			continue
 
-		lines = POINT_LINES[str(point_index)]
+		lines = get_pentagon(point_index)
 		if lines:
-			end_points_dict = {}
-
-			for line in lines:
-				end_point = -1
-				if LINES[line][0] == point_index:
-					end_point = LINES[line][1]
-				else:
-					end_point = LINES[line][0]
-				if end_point > -1:
-					end_points_dict[str(end_point)] = end_point
-			
-			# 获取五边形线
-			pentagon_lines_dict = get_layer_lines(end_points_dict)
-
 			# 按照实际相邻关系排序
-			lines = []
-			for _, line in pentagon_lines_dict.items():
-				lines.append(line)
 			order_lines = []
 			first_line = lines.pop()
 			order_lines.append(first_line)
@@ -616,8 +640,9 @@ def scroll_pentagon_lines(color, interval):
 						next_point = LINES[line][0]
 						lines.remove(line)
 						break
+
 			# 滚动变颜色
-			colors = [COLOR.RED, COLOR.GREEN, COLOR.PURPLE, COLOR.TURQUOISE, COLOR.YELLOW, COLOR.BLUE]
+			colors = [COLOR.RED, COLOR.GREEN, COLOR.PURPLE, COLOR.INDIGO, COLOR.YELLOW, COLOR.BLUE]
 			for x in range(0, len(order_lines)):
 				last_color = colors.pop()
 				colors.insert(0, last_color)
@@ -628,8 +653,6 @@ def scroll_pentagon_lines(color, interval):
 				STRIP.show()
 				time.sleep(interval)
 
-			for line in order_lines:
-				light_line(line, color)
-			STRIP.show()
+			light_lines(order_lines, color)
 
 		pre_point_index = point_index

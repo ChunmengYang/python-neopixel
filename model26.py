@@ -7,6 +7,9 @@ import time
 import board
 from rpi_ws281x import ws, Color, Adafruit_NeoPixel
 import RPi.GPIO as GPIO
+import colors
+
+COLOR = colors.COLOR
 
 GPIO.setmode(GPIO.BCM)
 
@@ -16,22 +19,12 @@ LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
 LED_DMA = 12          # DMA channel to use for generating signal (Between 1 and 14)
 LED_BRIGHTNESS = 128  # Set to 0 for darkest and 255 for brightest
 LED_INVERT = False    # True to invert the signal (when using NPN transistor level shift)
-LED_CHANNEL = 0       # 0 or 1
+LED_CHANNEL = 0    	  # 0 or 1
 LED_STRIP = ws.WS2811_STRIP_GRB
 
 
 STRIP = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL, LED_STRIP)
 STRIP.begin()
-
-
-class COLOR:
-	BLACK = Color(0, 0, 0)
-	GREEN = Color(0, 255, 0)
-	RED = Color(255, 0, 0)
-	BLUE = Color(0, 0, 255)
-	YELLOW = Color(255, 255, 0)
-	PURPLE = Color(255, 0, 255)
-	TURQUOISE = Color(0, 255, 255)
 
 
 LINES_LED = [
@@ -169,6 +162,7 @@ SURFACES = [
 	[44, 45, 46, 47]  	#250
 ]
 
+
 POINT_LINES = {}
 line_index = 0
 for line in LINES:
@@ -209,7 +203,10 @@ for surface in SURFACES:
 	surface_index += 1
 
 
-
+# 查询列表是否包含了某子项。
+# items，列表。
+# item，子项。
+# return, 包含返回1，不包含返回0
 def contain(items, item):
 	if len(items) > 0:
 		for i in items:
@@ -218,25 +215,10 @@ def contain(items, item):
 	return 0
 
 
-def light_line(line, color):
-	line_led = LINES_LED[line]
-
-	start_point = line_led[0]
-	end_point = line_led[1]
-
-	if start_point > end_point:
-		current_point = start_point
-		while current_point >= end_point:
-			STRIP.setPixelColor(current_point, color)
-			current_point -= 1
-	else:
-		current_point = start_point
-		while current_point <= end_point:
-			STRIP.setPixelColor(current_point, color)
-			current_point += 1
-	
-
-
+# 查找随机一条线
+# point，在要查找线上的点。
+# ignore_line，要忽略的线的列表
+# return，返回线的编号，没有查询到返回-1。
 def random_line(point, ignore_line):
 	lines_all = POINT_LINES[str(point)]
 	lines = []
@@ -253,7 +235,10 @@ def random_line(point, ignore_line):
 	return -1
 
 
-
+# 查找随机一个面
+# line，在要查找面上的线。
+# ignore_surface，要忽略的面的列表
+# return，返回面的编号，没有查询到返回-1。
 def random_surface(line, ignore_surface):
 	surfaces_all = LINE_SURFACES[str(line)]
 	surfaces = []
@@ -270,15 +255,170 @@ def random_surface(line, ignore_surface):
 	return -1
 
 
+# 查找一个面上给定线的平行线
+# line，给定的线。
+# surface，line在surface面上。
+# return，返回target_line，平行线编号。
+def get_parallel_line(line, surface):
+	target_line = -1
+	lines = SURFACES[surface]
+	if lines:
+		lines_len = len(lines)
+		for x in range(0, lines_len):
+			if lines[x] == line:
+				if (x + 2) < lines_len:
+					target_line = lines[x + 2]
+				elif x - 2 >= 0:
+					target_line = lines[x - 2]
 
+	return target_line
+
+
+# 查找下一层线
+# points_dict，当前层的所有点的字典。
+# pre_points_dict，上一层所有点的字典，查询时为了排除上一层。
+# return，返回lines_dict下一层的线的字典，next_points_dict下一层的点。
+def get_layer_lines(points_dict, pre_points_dict):
+	lines_dict = {}
+	next_points_dict = {}
+
+	for key, point in points_dict.items():
+		lines = POINT_LINES[str(point)]
+		if lines:
+			for line in lines:
+				another_point = -1
+				if LINES[line][0] == point:
+					another_point = LINES[line][1]
+				if LINES[line][1] == point:
+					another_point = LINES[line][0]
+
+				if str(another_point) in points_dict:
+					lines_dict[str(line)] = line
+					continue
+				if str(another_point) in pre_points_dict:
+					continue
+
+				next_points_dict[str(another_point)] = another_point
+
+	return lines_dict, next_points_dict
+
+
+# 查询一条边所在的面
+# line, 线的编号。
+# ignore_surface，要忽略的面的编号。
+# return, 返回面的编号，没有查询到返回-1。
+def get_surface_by_line(line, ignore_surface):
+	surfaces = LINE_SURFACES[str(line)]
+	if surfaces:
+		for surface in surfaces:
+			if surface == ignore_surface:
+				continue
+			return surface
+	return -1
+
+
+# 查询一条边在一个正方形中的对面边和对面边所在正方形
+# line, 线编号。
+# surface，line所在的面。
+# return，返回target_line对面边（平行线）的编号，target_surface为target_line所在的另一个面的编号。
+def get_surface_by_opposite_line(line, surface):
+	target_line = -1
+	target_surface = -1
+	lines = SURFACES[surface]
+	if lines:
+		lines_len = len(lines)
+		for x in range(0, lines_len):
+			if lines[x] == line:
+				if (x + 2) < lines_len:
+					target_line = lines[x + 2]
+				elif x - 2 >= 0:
+					target_line = lines[x - 2]
+
+	if target_line >= 0:
+		target_surface = get_surface_by_line(target_line, surface)
+
+	return target_line, target_surface
+
+
+# 查询一条边在一个面中相邻的两边所在的面
+# line，线的编号。
+# surface，line所在面的编号。
+# return，返回target_surface、target_other_surface两个面的编号。
+def get_surface_by_neighbouring_line(line, surface):
+	target_line = -1
+	target_surface = -1
+	target_other_line = -1
+	target_other_surface = -1
+
+	lines = SURFACES[surface]
+	if lines:
+		lines_len = len(lines)
+		for x in range(0, lines_len):
+			if lines[x] == line:
+				if (x + 1) > lines_len:
+					target_line = lines[0]
+					target_other_line = lines[x - 1]
+				elif x - 1 < 0:
+					target_line = lines[x + 1]
+					target_other_line = lines[lines_len - 1]
+				else:
+					target_line = lines[x + 1]
+					target_other_line = lines[x - 1]
+
+	if target_line >= 0:
+		target_surface = get_surface_by_line(target_line, surface)
+	if target_other_line >= 0:
+		target_other_surface = get_surface_by_line(target_other_line, surface)
+
+	return target_surface, target_other_surface
+
+
+# 设置一条线的亮灯颜色，调用该函数之后要再调用STRIP.show()才能起作用。
+# line，要设置的线编号。
+# color，设置的颜色。
+def light_line(line, color):
+	line_led = LINES_LED[line]
+
+	start_point = line_led[0]
+	end_point = line_led[1]
+
+	if start_point > end_point:
+		current_point = start_point
+		while current_point >= end_point:
+			STRIP.setPixelColor(current_point, color)
+			current_point -= 1
+	else:
+		current_point = start_point
+		while current_point <= end_point:
+			STRIP.setPixelColor(current_point, color)
+			current_point += 1
+
+
+# 设置一组线的亮灯颜色。
+# lines，线的列表。
+# color，设置的颜色。
+def light_lines(lines, color):
+	if len(lines) > 0:
+		for line in lines:
+			light_line(line, color)
+		STRIP.show()
+
+
+# 设置所有灯的亮灯颜色
+# color，设置的颜色。
 def fill(color):
 	for i in range(STRIP.numPixels()):
 		STRIP.setPixelColor(i, color)
 	STRIP.show()
 
 
-# 逐个点亮一条边上的所有灯
-def flow_line(start_point, line, color, interval):
+# 逐段点亮一条边上的所有灯
+# start_point，开始点，该点为line的一段点。
+# line，线的编号。
+# color，设置的颜色。
+# lamps_number，每段灯的数量。
+# interval，时间间隔，单位为秒。
+def flow_line(start_point, line, color, lamps_number, interval):
 	line_led = LINES_LED[line]
 	start_led = -1
 	end_led = -1
@@ -298,7 +438,7 @@ def flow_line(start_point, line, color, interval):
 			STRIP.setPixelColor(start_led + x, color)
 
 		interval_count += 1
-		if interval_count == 5:
+		if interval_count == lamps_number:
 			STRIP.show()
 			time.sleep(interval)
 			interval_count = 0
@@ -308,8 +448,16 @@ def flow_line(start_point, line, color, interval):
 		time.sleep(interval)
 
 
-# 逐个点亮两条边上的所有灯
-def flow_double_line(pre_start_point, pre_line, pre_color, start_point, line, color, interval):
+# 逐个段亮两条边上的所有灯
+# pre_start_point，第一条线的开始点，该点为pre_line的一段点。
+# pre_line，第一条线的编号。
+# pre_color，第一条线设置的颜色。
+# start_point，第二条线开始点，该点为line的一段点。
+# line，第二条线的编号。
+# color，第二条设置的颜色。
+# lamps_number，每段灯的数量。
+# interval，时间间隔，单位为秒。
+def flow_double_line(pre_start_point, pre_line, pre_color, start_point, line, color, lamps_number, interval):
 	pre_line_led = LINES_LED[pre_line]
 	pre_start_led = -1
 	pre_end_led = -1
@@ -351,7 +499,7 @@ def flow_double_line(pre_start_point, pre_line, pre_color, start_point, line, co
 				STRIP.setPixelColor(start_led + x, color)
 
 		interval_count += 1
-		if interval_count == 5:
+		if interval_count == lamps_number:
 			STRIP.show()
 			time.sleep(interval)
 			interval_count = 0
@@ -362,26 +510,37 @@ def flow_double_line(pre_start_point, pre_line, pre_color, start_point, line, co
 
 
 # 从一条边向另一条相邻的边流动点亮
-def flow(start_point, flow_line_number, interval):
-	ignore_line = []
-	
-	pre_start_point = -1
-	pre_line = -1
+# start_point，开始点。
+# max_line_number，最大亮灯线数，大于2。
+# flow_line_number，流动经过的线数。
+# color1，点亮颜色。
+# color2，恢复到原来颜色。
+# lamps_number，每次流动的灯数, 小于线的灯数（78）。
+# interval，每次流动的时间间隔，单位为秒
+def flow(start_point, max_line_number, flow_line_number, color1, color2, lamps_number, interval):
+	# 已经亮起的线列表
+	light_up_lines = []
 
 	index = 0
 	while index < flow_line_number:
+		ignore_line = []
+		for line_dict in light_up_lines:
+			ignore_line.append(line_dict["line"])
+
 		line = random_line(start_point, ignore_line)
+		if line == -1:
+			return
 
-		if pre_line == -1:
-			flow_line(start_point, line, COLOR.RED, interval)
-			pre_start_point = start_point
-			pre_line = line
+		if len(light_up_lines) < max_line_number:
+			flow_line(start_point, line, color1, lamps_number, interval)
 		else:
-			flow_double_line(pre_start_point, pre_line, COLOR.BLACK, start_point, line, COLOR.RED, interval)
-			pre_start_point = start_point
-			pre_line = line
+			pre_line_dict = light_up_lines.pop(0)
+			pre_start_point = pre_line_dict["start_point"]
+			pre_line = pre_line_dict["line"]
+			flow_double_line(pre_start_point, pre_line, color2, start_point, line, color1, lamps_number, interval)
 
-		ignore_line = [line]
+		light_up_lines.append({"start_point": start_point, "line": line})
+
 		if LINES[line][0] == start_point:
 			start_point = LINES[line][1]
 		else:
@@ -389,8 +548,13 @@ def flow(start_point, flow_line_number, interval):
 
 		index += 1
 
-	if pre_line > -1:
-		flow_line(pre_start_point, pre_line, COLOR.BLACK, interval)
+	light_up_lines_count = len(light_up_lines)
+	if light_up_lines_count > 0:
+		for x in range(0, light_up_lines_count):
+			pre_line_dict = light_up_lines.pop(0)
+			pre_start_point = pre_line_dict["start_point"]
+			pre_line = pre_line_dict["line"]
+			flow_line(pre_start_point, pre_line, color2, lamps_number, interval)
 
 
 # 随机点亮某个面
@@ -407,21 +571,14 @@ def flash_surface(color1, color2, flash_number, interval):
 			continue
 
 		lines = SURFACES[surface_index]
-		if lines:
-			for line in lines:
-				light_line(line, color1)
-		STRIP.show()
+		light_lines(lines, color1)
 
 		time.sleep(interval)
 
-		if lines:
-			for line in lines:
-				light_line(line, color2)
-		STRIP.show()
+		light_lines(lines, color2)
 		
 		pre_index = surface_index
 		index += 1
-
 
 
 # 平行线滚动(只限于正方形的面)
@@ -430,67 +587,46 @@ def flash_surface(color1, color2, flash_number, interval):
 # start_line，开始边的编号。
 # scroll_number，滚动次数。
 # interval，滚动时间间隔，单位为秒。
-def parallel_line_scroll(color1, color2, start_line, scroll_number, interval):
-	light_line(start_line, COLOR.RED)
-	STRIP.show()
-	time.sleep(interval)
-	light_line(start_line, COLOR.BLACK)
-	STRIP.show()
-
+def parallel_line_scroll(colors, start_line, interval):
+	lines = []
+	lines.append(start_line)
+	
+	if not colors:
+		colors = [COLOR.GREEN, COLOR.RED, COLOR.BLUE, COLOR.YELLOW, COLOR.PURPLE, COLOR.INDIGO]
+	
+	line = start_line
 	ignore_surface = []
 	index = 0
-	while index < scroll_number:
-		surface = random_surface(start_line, ignore_surface)
-		target_line = -1
-		lines = SURFACES[surface]
-		if lines:
-			lines_len = len(lines)
-			for x in range(0, lines_len):
-				if lines[x] == start_line:
-					if (x + 2) < lines_len:
-						target_line = lines[x + 2]
-					elif x - 2 >= 0:
-						target_line = lines[x - 2]
-
-		if target_line > -1:
-			light_line(target_line, COLOR.RED)
-			STRIP.show()
+	while index < 8:
+		surface = random_surface(line, ignore_surface)
+		target_line = get_parallel_line(line, surface)
+		if target_line > -1 and target_line != start_line:
+			lines.append(target_line)
 		else:
-			return
-
-		time.sleep(interval)
-		light_line(target_line, COLOR.BLACK)
-		STRIP.show()
-
+			break
+		
+		line = target_line
 		ignore_surface = [surface]
-		start_line = target_line
 
 		index += 1
 
+	for x in range(0, len(lines)):
+		last_color = colors.pop()
+		colors.insert(0, last_color)
 
-def get_layer_lines(points_dict, pre_points_dict):
-	lines_dict = {}
-	next_points_dict = {}
+		index = 0
+		color_index = 0
 
-	for key, point in points_dict.items():
-		lines = POINT_LINES[str(point)]
-		if lines:
-			for line in lines:
-				another_point = -1
-				if LINES[line][0] == point:
-					another_point = LINES[line][1]
-				if LINES[line][1] == point:
-					another_point = LINES[line][0]
+		for line in lines:
+			color_index = index
+			if color_index > (len(colors) - 1):
+				color_index = 0
+			light_line(line, colors[color_index])
+			index += 1
+			color_index += 1
 
-				if str(another_point) in points_dict:
-					lines_dict[str(line)] = line
-					continue
-				if str(another_point) in pre_points_dict:
-					continue
-
-				next_points_dict[str(another_point)] = another_point
-
-	return lines_dict, next_points_dict
+		STRIP.show()
+		time.sleep(interval)
 
 
 # 点亮一层线，再点亮相邻平行的下一层线，以此类推，没有下一层就返回。
@@ -588,67 +724,6 @@ def light_octagon_lines(color1, color2, interval):
 		for _, line in lines_dict.items():
 			light_line(line, color2)
 		STRIP.show()
-
-
-# 查询一条边所在的面
-def get_surface_by_line(line, ignore_surface):
-	surfaces = LINE_SURFACES[str(line)]
-	if surfaces:
-		for surface in surfaces:
-			if surface == ignore_surface:
-				continue
-			return surface
-	return -1
-
-
-# 查询一条边在一个正方形中的对面边和对面边所在正方形
-def get_surface_by_opposite_line(line, surface):
-	target_line = -1
-	target_surface = -1
-	lines = SURFACES[surface]
-	if lines:
-		lines_len = len(lines)
-		for x in range(0, lines_len):
-			if lines[x] == line:
-				if (x + 2) < lines_len:
-					target_line = lines[x + 2]
-				elif x - 2 >= 0:
-					target_line = lines[x - 2]
-
-	if target_line >= 0:
-		target_surface = get_surface_by_line(target_line, surface)
-
-	return target_line, target_surface
-
-
-# 查询一条边在一个面中相邻的两边所在的面
-def get_surface_by_neighbouring_line(line, surface):
-	target_line = -1
-	target_surface = -1
-	target_other_line = -1
-	target_other_surface = -1
-
-	lines = SURFACES[surface]
-	if lines:
-		lines_len = len(lines)
-		for x in range(0, lines_len):
-			if lines[x] == line:
-				if (x + 1) > lines_len:
-					target_line = lines[0]
-					target_other_line = lines[x - 1]
-				elif x - 1 < 0:
-					target_line = lines[x + 1]
-					target_other_line = lines[lines_len - 1]
-				else:
-					target_line = lines[x + 1]
-					target_other_line = lines[x - 1]
-
-	if target_line >= 0:
-		target_surface = get_surface_by_line(target_line, surface)
-	if target_other_line >= 0:
-		target_other_surface = get_surface_by_line(target_other_line, surface)
-
-	return target_surface, target_other_surface
 
 
 # 正二六面体中一个正方形与其相邻的两个三角形一起点亮，然后熄灭随后下一组点亮
