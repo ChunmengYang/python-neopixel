@@ -288,26 +288,41 @@ class SonarThread(threading.Thread):
                     usb_port = '/dev/ttyUSB0'
                 ser = None
                 state = None
-            
+
+            if state == None:
+                continue
+
             if state == 1:
                 if (self.sonar_led_thread is None) or (not self.sonar_led_thread.is_alive()):
                     stop_carousel() 
 
-                    self.sonar_led_thread = SonarLedThread("超声波亮灯线程")
+                    self.sonar_led_thread = SonarLedThread("超声波亮灯线程", 1)
+                    self.sonar_led_thread.start()
+            elif state == 2:
+                if (self.sonar_led_thread is None) or (not self.sonar_led_thread.is_alive()):
+                    stop_carousel() 
+
+                    self.sonar_led_thread = SonarLedThread("超声波亮灯线程", 2)
                     self.sonar_led_thread.start()
             state = None
             
 
 # 超声波亮灯线程
 class SonarLedThread(threading.Thread):
-    def __init__(self, name):
+    def __init__(self, name, sonar):
         threading.Thread.__init__(self)
         self.name = name
+        self.sonar = sonar
     def run(self):
-        double_fill(COLOR.BLACK, COLOR.BLACK)
-        time.sleep(0.5)
-        model26.flow(17, 4, 15, COLOR.RUBY, COLOR.BLACK, 16, 0.01)
-
+        if self.sonar == 1:
+            double_fill(COLOR.BLACK, COLOR.BLACK)
+            time.sleep(0.5)
+            model26.flow(17, 4, 15, COLOR.RUBY, COLOR.BLACK, 16, 0.01)
+        elif self.sonar == 2:
+            double_fill(COLOR.BLACK, COLOR.BLACK)
+            time.sleep(0.5)
+            model26.light_layer_to_layer(COLOR.RED, COLOR.RED, 5, 4, 0.2)
+            model26.light_layer_to_layer(COLOR.BLACK, COLOR.BLACK, 4, 4, 0.2)
         start_carousel()
         
 

@@ -647,6 +647,10 @@ def light_layer_to_layer(color1, color2, direction, layer_number, interval):
 		points_dict = {"4": 4, "11": 11, "12": 12, "19": 19}
 	elif direction == 3:
 		points_dict = {"7": 7, "8": 8, "15": 15, "16": 16}
+	elif direction == 4:
+		points_dict = {"9": 9, "10": 10, "17": 17, "18": 18}
+	elif direction == 5:
+		points_dict = {"5": 5, "6": 6, "13": 13, "14": 14}
 	else:
 		points_dict = {"0": 0, "1": 1, "2": 2, "3": 3}
 
