@@ -281,7 +281,7 @@ class SonarThread(threading.Thread):
                 else:
                     state = int(state)
             except:
-                print('超声波串口连接失败')
+                # print('超声波串口连接失败')
                 if usb_port == '/dev/ttyUSB0':
                     usb_port = '/dev/ttyUSB1'
                 else:
